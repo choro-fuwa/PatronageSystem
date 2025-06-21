@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.patronage</groupId>
+    <artifactId>patronage-system</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+
+    <name>patronage-system</name>
+    <description>智能投顾系统</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>17</java.version>
+        <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
+        <spring-boot.version>3.1.5</spring-boot.version>
+        <spring-cloud.version>2022.0.4</spring-cloud.version>
+        <druid.version>1.2.23</druid.version>
+        <swagger.version>2.2.0</swagger.version>
+        <pagehelper.boot.version>1.4.7</pagehelper.boot.version>
+        <fastjson.version>2.0.53</fastjson.version>
+        <poi.version>5.2.3</poi.version>
+        <jwt.version>0.11.5</jwt.version>
+        <lombok.version>1.18.28</lombok.version>
+        <!-- Override versions -->
+        <logback.version>1.4.11</logback.version>
+        <spring-framework.version>6.0.13</spring-framework.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring Boot -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Spring Framework -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-framework-bom</artifactId>
+                <version>${spring-framework.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- 数据库连接池 -->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid-spring-boot-starter</artifactId>
+                <version>${druid.version}</version>
+            </dependency>
+
+            <!-- 分页插件 -->
+            <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper-spring-boot-starter</artifactId>
+                <version>${pagehelper.boot.version}</version>
+            </dependency>
+
+            <!-- Swagger -->
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-boot-starter</artifactId>
+                <version>${swagger.version}</version>
+            </dependency>
+
+            <!-- FastJSON -->
+            <dependency>
+                <groupId>com.alibaba.fastjson2</groupId>
+                <artifactId>fastjson2</artifactId>
+                <version>${fastjson.version}</version>
+            </dependency>
+
+            <!-- Excel工具 -->
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>${poi.version}</version>
+            </dependency>
+
+            <!-- JWT -->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-api</artifactId>
+                <version>${jwt.version}</version>
+            </dependency>
+
+            <!-- 核心模块 -->
+            <dependency>
+                <groupId>com.patronage</groupId>
+                <artifactId>patronage-framework</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- 基金研究模块 -->
+            <dependency>
+                <groupId>com.patronage</groupId>
+                <artifactId>patronage-research</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- 因子管理模块 -->
+            <dependency>
+                <groupId>com.patronage</groupId>
+                <artifactId>patronage-factors</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- 策略管理模块 -->
+            <dependency>
+                <groupId>com.patronage</groupId>
+                <artifactId>patronage-strategy</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- 交易管理模块 -->
+            <dependency>
+                <groupId>com.patronage</groupId>
+                <artifactId>patronage-trading</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- 产品模块依赖 -->
+            <dependency>
+                <groupId>com.patronage</groupId>
+                <artifactId>patronage-products</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- 实时消息队列 -->
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-streams</artifactId>
+                <version>${kafka.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <modules>
+<!--        <module>patronage-admin</module>       &lt;!&ndash; 主入口 &ndash;&gt;-->
+<!--        <module>patronage-framework</module>   &lt;!&ndash; 核心框架 &ndash;&gt;-->
+<!--        <module>patronage-research</module>    &lt;!&ndash; 基金研究 &ndash;&gt;-->
+<!--        <module>patronage-factors</module>     &lt;!&ndash; 因子管理 &ndash;&gt;-->
+<!--        <module>patronage-strategy</module>    &lt;!&ndash; 策略管理 &ndash;&gt;-->
+<!--        <module>patronage-trading</module>     &lt;!&ndash; 交易管理 &ndash;&gt;-->
+<!--        <module>patronage-products</module>    &lt;!&ndash; 新增组合产品管理 &ndash;&gt;-->
+<!--        <module>patronage-common</module>      &lt;!&ndash; 通用工具 &ndash;&gt;-->
+    </modules>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>aliyun</id>
+            <name>Aliyun Maven</name>
+            <url>https://maven.aliyun.com/repository/public</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+</project>
