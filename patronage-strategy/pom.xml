@@ -17,14 +17,6 @@
 
     <dependencies>
         <!-- 1. 必需的基础依赖（从父POM继承版本） -->
-        <dependency>
-            <groupId>com.ruoyi</groupId>
-            <artifactId>ruoyi-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.ruoyi</groupId>
-            <artifactId>ruoyi-framework</artifactId>
-        </dependency>
 
         <!-- 2. 策略模块专用依赖 -->
         <dependency>
