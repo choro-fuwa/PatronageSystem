@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <!-- 继承父POM -->
+    <parent>
+        <artifactId>patronage-system</artifactId>
+        <groupId>com.patronage</groupId>
+        <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath> <!-- 根据实际父POM路径调整 -->
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>patronage-strategy</artifactId>
+    <name>patronage-strategy</name>
+    <description>策略管理子系统模块</description>
+
+    <dependencies>
+        <!-- 1. 必需的基础依赖（从父POM继承版本） -->
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>ruoyi-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>ruoyi-framework</artifactId>
+        </dependency>
+
+        <!-- 2. 策略模块专用依赖 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>3.6.1</version>  <!-- 覆盖父POM版本 --><!-- 也可能父POM版本里没有，自己设置-->
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.10.10</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!-- 覆盖父POM的构建配置（仅针对本模块的特殊需求） -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+                <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.xml</include> <!-- 确保MyBatis Mapper文件被包含 -->
+                </includes>
+            </resource>
+        </resources>
+    </build>
+</project>
