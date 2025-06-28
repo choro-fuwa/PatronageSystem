@@ -3,14 +3,14 @@
     <!-- 页面标题 -->
     <div class="page-header">
       <div class="header-left">
-        <h2>策略监控</h2>
+          <h2>策略监控</h2>
         <p class="subtitle">实时监控策略运行状态和绩效表现</p>
       </div>
       <div class="header-right">
         <el-button @click="handleRefresh" :icon="Refresh">刷新</el-button>
         <el-button type="primary" @click="handleExport" :icon="Download">导出报告</el-button>
       </div>
-    </div>
+        </div>
 
     <!-- 策略选择 -->
     <el-card class="strategy-selector">
@@ -61,7 +61,7 @@
           <el-card class="metric-card">
             <div class="metric-content">
               <div class="metric-icon total-return">
-                <el-icon><TrendingUp /></el-icon>
+                <el-icon><TrendCharts /></el-icon>
               </div>
               <div class="metric-info">
                 <div class="metric-label">总收益率</div>
@@ -205,7 +205,7 @@
           </el-card>
         </el-col>
       </el-row>
-    </div>
+      </div>
 
     <!-- 预警信息 -->
     <el-card class="alert-section" v-if="alerts.length > 0">
@@ -534,7 +534,7 @@
 import { ref, reactive, onMounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Refresh, Download, Money, TrendingUp, Warning, DataAnalysis, TrendCharts, VideoPlay } from '@element-plus/icons-vue'
+import { Refresh, Download, Money, TrendCharts, Warning, DataAnalysis, VideoPlay } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 import { getStrategyMonitorData, getStrategyRiskMetrics, strategyApi, monitorApi } from '@/api/strategy'
 import dayjs from 'dayjs'
@@ -1144,9 +1144,9 @@ onMounted(() => {
 <style scoped lang="scss">
 .monitor-container {
   .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     margin-bottom: 24px;
     
     .header-left {
@@ -1171,8 +1171,8 @@ onMounted(() => {
   
   .metrics-cards {
     margin-bottom: 24px;
-    
-    .metric-card {
+
+  .metric-card {
       .metric-content {
         display: flex;
         align-items: center;
@@ -1215,9 +1215,9 @@ onMounted(() => {
             color: #6b7280;
             margin-bottom: 4px;
           }
-          
-          .metric-value {
-            font-size: 24px;
+    
+    .metric-value {
+      font-size: 24px;
             font-weight: 600;
             color: #1f2937;
             line-height: 1;
@@ -1226,12 +1226,12 @@ onMounted(() => {
           .metric-change {
             font-size: 12px;
             margin-top: 4px;
-            
-            &.positive {
+      
+      &.positive {
               color: #52c41a;
-            }
-            
-            &.negative {
+      }
+      
+      &.negative {
               color: #ff4d4f;
             }
           }
@@ -1251,8 +1251,8 @@ onMounted(() => {
       }
       
       .chart-container {
-        height: 400px;
-      }
+      height: 400px;
+    }
     }
   }
   

@@ -28,7 +28,7 @@ const router = createRouter({
       children: [
         {
           path: 'list',
-          name: 'StrategyList',
+      name: 'StrategyList',
           component: () => import('@/views/strategy/index.vue'),
           meta: {
             title: '策略列表',
@@ -124,7 +124,7 @@ const router = createRouter({
           component: () => import('@/views/monitor/analysis.vue'),
           meta: {
             title: '绩效分析',
-            icon: 'TrendingUp'
+            icon: 'TrendCharts'
           }
         }
       ]
@@ -132,21 +132,12 @@ const router = createRouter({
     {
       path: '/trading',
       name: 'Trading',
-      redirect: '/trading/orders',
+      redirect: '/trading/positions',
       meta: {
         title: '交易管理',
         icon: 'Money'
       },
       children: [
-        {
-          path: 'orders',
-          name: 'TradingOrders',
-          component: () => import('@/views/trading/orders.vue'),
-          meta: {
-            title: '订单管理',
-            icon: 'Document'
-          }
-        },
         {
           path: 'positions',
           name: 'TradingPositions',
@@ -170,7 +161,6 @@ const router = createRouter({
     {
       path: '/risk',
       name: 'Risk',
-      redirect: '/risk/overview',
       meta: {
         title: '风险管理',
         icon: 'Warning'
@@ -184,31 +174,12 @@ const router = createRouter({
             title: '风险概览',
             icon: 'DataBoard'
           }
-        },
-        {
-          path: 'limits',
-          name: 'RiskLimits',
-          component: () => import('@/views/risk/limits.vue'),
-          meta: {
-            title: '限额管理',
-            icon: 'Lock'
-          }
-        },
-        {
-          path: 'stress',
-          name: 'RiskStress',
-          component: () => import('@/views/risk/stress.vue'),
-          meta: {
-            title: '压力测试',
-            icon: 'DataAnalysis'
-          }
         }
       ]
     },
     {
       path: '/reports',
       name: 'Reports',
-      redirect: '/reports/performance',
       meta: {
         title: '报告中心',
         icon: 'Document'
@@ -220,25 +191,7 @@ const router = createRouter({
           component: () => import('@/views/reports/performance.vue'),
           meta: {
             title: '绩效报告',
-            icon: 'TrendingUp'
-          }
-        },
-        {
-          path: 'risk',
-          name: 'ReportsRisk',
-          component: () => import('@/views/reports/risk.vue'),
-          meta: {
-            title: '风险报告',
-            icon: 'Warning'
-          }
-        },
-        {
-          path: 'attribution',
-          name: 'ReportsAttribution',
-          component: () => import('@/views/reports/attribution.vue'),
-          meta: {
-            title: '归因分析',
-            icon: 'DataAnalysis'
+            icon: 'TrendCharts'
           }
         }
       ]

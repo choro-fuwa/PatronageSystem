@@ -34,16 +34,16 @@ public class StrategyAlert {
     private String alertName;
 
     /**
-     * 预警类型（1:收益率预警 2:回撤预警 3:持仓预警 4:资金预警）
+     * 预警类型（1:收益率 2:回撤 3:波动率 4:持仓集中度）
      */
     @TableField("alert_type")
     private Integer alertType;
 
     /**
-     * 预警条件（JSON格式）
+     * 预警条件（1:大于 2:小于 3:等于）
      */
-    @TableField("alert_condition")
-    private String alertCondition;
+    @TableField("condition_type")
+    private Integer conditionType;
 
     /**
      * 预警阈值
@@ -52,13 +52,13 @@ public class StrategyAlert {
     private BigDecimal threshold;
 
     /**
-     * 预警级别（1:低 2:中 3:高）
+     * 是否启用（0:禁用 1:启用）
      */
-    @TableField("alert_level")
-    private Integer alertLevel;
+    @TableField("is_enabled")
+    private Integer isEnabled;
 
     /**
-     * 通知方式（1:邮件 2:短信 3:WebSocket 4:全部）
+     * 通知方式（1:邮件 2:短信 3:系统消息）
      */
     @TableField("notification_type")
     private Integer notificationType;
@@ -68,12 +68,6 @@ public class StrategyAlert {
      */
     @TableField("recipients")
     private String recipients;
-
-    /**
-     * 是否启用（0:禁用 1:启用）
-     */
-    @TableField("enabled")
-    private Integer enabled;
 
     /**
      * 创建时间
@@ -92,11 +86,4 @@ public class StrategyAlert {
      */
     @TableField("create_by")
     private String createBy;
-
-    /**
-     * 逻辑删除标识（0:未删除 1:已删除）
-     */
-    @TableLogic
-    @TableField("deleted")
-    private Integer deleted;
 } 

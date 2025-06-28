@@ -76,12 +76,6 @@ public class StrategyPosition {
     private BigDecimal positionRatio;
 
     /**
-     * 持仓方向（1:多头 -1:空头）
-     */
-    @TableField("direction")
-    private Integer direction;
-
-    /**
      * 创建时间
      */
     @TableField(value = "create_time", fill = FieldFill.INSERT)
@@ -92,11 +86,4 @@ public class StrategyPosition {
      */
     @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
-
-    /**
-     * 逻辑删除标识（0:未删除 1:已删除）
-     */
-    @TableLogic
-    @TableField("deleted")
-    private Integer deleted;
 } 

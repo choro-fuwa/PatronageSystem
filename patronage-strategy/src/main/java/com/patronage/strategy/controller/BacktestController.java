@@ -1,22 +1,21 @@
 package com.patronage.strategy.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.patronage.strategy.entity.BacktestResult;
 import com.patronage.strategy.service.BacktestEngine;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * 回测管理控制器
+ * 回测控制器
  */
-@Slf4j
 @RestController
-@RequestMapping("/backtest")
+@RequestMapping("/api/backtest")
 public class BacktestController {
 
     @Autowired
@@ -25,141 +24,96 @@ public class BacktestController {
     /**
      * 执行回测
      */
-    @PostMapping("/execute")
-    public Map<String, Object> executeBacktest(
-            @RequestParam Long strategyId,
-            @RequestParam String backtestName,
-            @RequestParam String startDate,
-            @RequestParam String endDate,
-            @RequestParam(required = false) String parameters) {
+    @PostMapping("/run")
+    public Map<String, Object> runBacktest(@RequestBody Map<String, Object> request) {
+        Long strategyId = Long.valueOf(request.get("strategyId").toString());
+        String startDateStr = request.get("startDate").toString();
+        String endDateStr = request.get("endDate").toString();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> parameters = (Map<String, Object>) request.get("parameters");
         
-        Map<String, Object> result = new HashMap<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime startDate = LocalDateTime.parse(startDateStr, formatter);
+        LocalDateTime endDate = LocalDateTime.parse(endDateStr, formatter);
+        
         try {
-            LocalDate start = LocalDate.parse(startDate);
-            LocalDate end = LocalDate.parse(endDate);
+            BacktestResult result = backtestEngine.runBacktest(strategyId, startDate, endDate, parameters);
             
-            Long backtestId = backtestEngine.executeBacktest(strategyId, backtestName, start, end, parameters);
-            result.put("success", true);
-            result.put("message", "回测任务已提交");
-            result.put("data", backtestId);
+            Map<String, Object> response = new HashMap<>();
+            response.put("code", 200);
+            response.put("message", "回测执行成功");
+            response.put("data", result);
+            return response;
         } catch (Exception e) {
-            log.error("执行回测失败", e);
-            result.put("success", false);
-            result.put("message", "执行失败: " + e.getMessage());
+            Map<String, Object> response = new HashMap<>();
+            response.put("code", 500);
+            response.put("message", "回测执行失败: " + e.getMessage());
+            return response;
         }
-        return result;
     }
 
     /**
-     * 获取回测进度
+     * 获取回测结果
      */
-    @GetMapping("/progress/{backtestId}")
-    public Map<String, Object> getBacktestProgress(@PathVariable Long backtestId) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            Map<String, Object> progress = backtestEngine.getBacktestProgress(backtestId);
-            result.put("success", true);
-            result.put("data", progress);
-        } catch (Exception e) {
-            log.error("获取回测进度失败", e);
-            result.put("success", false);
-            result.put("message", "获取进度失败: " + e.getMessage());
-        }
-        return result;
-    }
-
-    /**
-     * 停止回测
-     */
-    @PostMapping("/stop/{backtestId}")
-    public Map<String, Object> stopBacktest(@PathVariable Long backtestId) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            boolean success = backtestEngine.stopBacktest(backtestId);
-            result.put("success", success);
-            result.put("message", success ? "回测已停止" : "停止回测失败");
-        } catch (Exception e) {
-            log.error("停止回测失败", e);
-            result.put("success", false);
-            result.put("message", "停止失败: " + e.getMessage());
-        }
-        return result;
-    }
-
-    /**
-     * 分页查询回测结果
-     */
-    @GetMapping("/list")
-    public Map<String, Object> getBacktestResultList(
-            @RequestParam(defaultValue = "1") Integer pageNum,
-            @RequestParam(defaultValue = "10") Integer pageSize,
-            @RequestParam(required = false) Long strategyId,
-            @RequestParam(required = false) Integer status) {
+    @GetMapping("/{id}")
+    public Map<String, Object> getBacktestResult(@PathVariable Long id) {
+        BacktestResult result = backtestEngine.getBacktestResult(id);
         
-        Map<String, Object> result = new HashMap<>();
-        try {
-            IPage<BacktestResult> page = backtestEngine.getBacktestResultPage(pageNum, pageSize, strategyId, status);
-            result.put("success", true);
-            result.put("data", page);
-        } catch (Exception e) {
-            log.error("查询回测结果失败", e);
-            result.put("success", false);
-            result.put("message", "查询失败: " + e.getMessage());
+        Map<String, Object> response = new HashMap<>();
+        if (result != null) {
+            response.put("code", 200);
+            response.put("message", "查询成功");
+            response.put("data", result);
+        } else {
+            response.put("code", 404);
+            response.put("message", "回测结果不存在");
         }
-        return result;
+        return response;
     }
 
     /**
-     * 获取回测结果详情
+     * 获取策略的回测历史
      */
-    @GetMapping("/detail/{backtestId}")
-    public Map<String, Object> getBacktestResultDetail(@PathVariable Long backtestId) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            BacktestResult backtestResult = backtestEngine.getBacktestResultDetail(backtestId);
-            result.put("success", true);
-            result.put("data", backtestResult);
-        } catch (Exception e) {
-            log.error("获取回测结果详情失败", e);
-            result.put("success", false);
-            result.put("message", "获取详情失败: " + e.getMessage());
-        }
-        return result;
-    }
-
-    /**
-     * 获取回测结果图表数据
-     */
-    @GetMapping("/chart/{backtestId}")
-    public Map<String, Object> getBacktestChartData(@PathVariable Long backtestId) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            Map<String, Object> chartData = backtestEngine.getBacktestChartData(backtestId);
-            result.put("success", true);
-            result.put("data", chartData);
-        } catch (Exception e) {
-            log.error("获取回测图表数据失败", e);
-            result.put("success", false);
-            result.put("message", "获取图表数据失败: " + e.getMessage());
-        }
-        return result;
+    @GetMapping("/history/{strategyId}")
+    public Map<String, Object> getBacktestHistory(@PathVariable Long strategyId) {
+        List<BacktestResult> history = backtestEngine.getBacktestHistory(strategyId);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("code", 200);
+        response.put("message", "查询成功");
+        response.put("data", history);
+        return response;
     }
 
     /**
      * 删除回测结果
      */
-    @DeleteMapping("/delete/{backtestId}")
-    public Map<String, Object> deleteBacktestResult(@PathVariable Long backtestId) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            boolean success = backtestEngine.deleteBacktestResult(backtestId);
-            result.put("success", success);
-            result.put("message", success ? "回测结果删除成功" : "删除失败");
-        } catch (Exception e) {
-            log.error("删除回测结果失败", e);
-            result.put("success", false);
-            result.put("message", "删除失败: " + e.getMessage());
+    @DeleteMapping("/{id}")
+    public Map<String, Object> deleteBacktestResult(@PathVariable Long id) {
+        boolean success = backtestEngine.deleteBacktestResult(id);
+        
+        Map<String, Object> response = new HashMap<>();
+        if (success) {
+            response.put("code", 200);
+            response.put("message", "删除成功");
+        } else {
+            response.put("code", 500);
+            response.put("message", "删除失败");
         }
-        return result;
+        return response;
+    }
+
+    /**
+     * 获取回测进度
+     */
+    @GetMapping("/{id}/progress")
+    public Map<String, Object> getBacktestProgress(@PathVariable Long id) {
+        Map<String, Object> progress = backtestEngine.getBacktestProgress(id);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("code", 200);
+        response.put("message", "查询成功");
+        response.put("data", progress);
+        return response;
     }
 } 

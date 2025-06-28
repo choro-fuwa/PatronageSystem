@@ -3,7 +3,7 @@
     <!-- 页面标题和操作按钮 -->
     <div class="page-header">
       <div class="header-left">
-        <h2>策略管理</h2>
+          <h2>策略管理</h2>
         <p class="subtitle">管理和监控您的投资策略</p>
       </div>
       <div class="header-right">
@@ -49,7 +49,7 @@
           <el-card class="stat-card">
             <div class="stat-content">
               <div class="stat-icon profit">
-                <el-icon><TrendingUp /></el-icon>
+                <el-icon><TrendCharts /></el-icon>
               </div>
               <div class="stat-info">
                 <div class="stat-number">{{ stats.totalReturn }}%</div>
@@ -72,7 +72,7 @@
           </el-card>
         </el-col>
       </el-row>
-    </div>
+        </div>
 
     <!-- 搜索栏 -->
     <el-card class="search-card">
@@ -166,7 +166,7 @@
         <el-table-column prop="currentCapital" label="当前资金" width="120">
           <template #default="{ row }">
             {{ formatCurrency(row.currentCapital) }}
-          </template>
+      </template>
         </el-table-column>
         <el-table-column prop="createTime" label="创建时间" width="180">
           <template #default="{ row }">
@@ -303,7 +303,6 @@ import {
   ArrowDown,
   VideoPlay,
   TrendCharts,
-  TrendingUp,
   Warning
 } from '@element-plus/icons-vue'
 import { getStrategyList, deleteStrategy } from '@/api/strategy'
@@ -552,9 +551,9 @@ const handleStop = async (row) => {
 const handleDelete = async (row) => {
   try {
     await ElMessageBox.confirm('确定要删除该策略吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
     })
     
     const res = await strategyApi.deleteStrategy(row.id)
@@ -691,9 +690,9 @@ onMounted(() => {
 <style scoped lang="scss">
 .strategy-container {
   .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     margin-bottom: 24px;
     
     .header-left {

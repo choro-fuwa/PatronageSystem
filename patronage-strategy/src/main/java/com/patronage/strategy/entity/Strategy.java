@@ -34,7 +34,7 @@ public class Strategy {
     private String description;
 
     /**
-     * 策略类型（1:趋势策略 2:均值回归 3:套利策略 4:量化策略）
+     * 策略类型（1:趋势跟踪 2:均值回归 3:套利 4:多因子）
      */
     @TableField("strategy_type")
     private Integer strategyType;
@@ -58,16 +58,28 @@ public class Strategy {
     private BigDecimal currentCapital;
 
     /**
+     * 最大回撤
+     */
+    @TableField("max_drawdown")
+    private BigDecimal maxDrawdown;
+
+    /**
+     * 年化收益率
+     */
+    @TableField("annual_return")
+    private BigDecimal annualReturn;
+
+    /**
+     * 夏普比率
+     */
+    @TableField("sharpe_ratio")
+    private BigDecimal sharpeRatio;
+
+    /**
      * 策略参数（JSON格式）
      */
     @TableField("parameters")
     private String parameters;
-
-    /**
-     * 风险控制参数（JSON格式）
-     */
-    @TableField("risk_control")
-    private String riskControl;
 
     /**
      * 创建时间
@@ -94,9 +106,9 @@ public class Strategy {
     private String updateBy;
 
     /**
-     * 逻辑删除标识（0:未删除 1:已删除）
+     * 是否删除（0:未删除 1:已删除）
      */
     @TableLogic
-    @TableField("deleted")
-    private Integer deleted;
+    @TableField("is_deleted")
+    private Integer isDeleted;
 } 

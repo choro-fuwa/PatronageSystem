@@ -67,7 +67,7 @@
           <el-card class="metric-card">
             <div class="metric-content">
               <div class="metric-icon total-return">
-                <el-icon><TrendingUp /></el-icon>
+                <el-icon><TrendCharts /></el-icon>
               </div>
               <div class="metric-info">
                 <div class="metric-number">{{ metrics.totalReturn }}%</div>
@@ -175,14 +175,13 @@ import {
   TrendCharts,
   VideoPlay,
   Money,
-  TrendingUp,
   Plus,
   DataAnalysis,
   Monitor,
   Document,
   Warning,
-  Success,
-  Info
+  CircleCheck,
+  InfoFilled
 } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 
@@ -390,11 +389,11 @@ const handleQuickAction = (action) => {
 // 获取通知图标
 const getNotificationIcon = (type) => {
   const iconMap = {
-    success: Success,
+    success: CircleCheck,
     warning: Warning,
-    info: Info
+    info: InfoFilled
   }
-  return iconMap[type] || Info
+  return iconMap[type] || InfoFilled
 }
 
 // 格式化时间

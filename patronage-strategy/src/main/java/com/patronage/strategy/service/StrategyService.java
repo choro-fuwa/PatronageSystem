@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.patronage.strategy.entity.Strategy;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * 策略服务接口
@@ -52,7 +52,7 @@ public interface StrategyService extends IService<Strategy> {
     Strategy getStrategyDetail(Long id);
 
     /**
-     * 获取策略统计信息
+     * 获取所有运行中的策略
      */
-    Map<String, Object> getStrategyStatistics();
+    List<Strategy> getRunningStrategies();
 } 

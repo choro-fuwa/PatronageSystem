@@ -34,22 +34,16 @@ public class AlertHistory {
     private Long alertId;
 
     /**
-     * 预警名称
-     */
-    @TableField("alert_name")
-    private String alertName;
-
-    /**
-     * 预警类型（1:收益率预警 2:回撤预警 3:持仓预警 4:资金预警）
+     * 预警类型
      */
     @TableField("alert_type")
     private Integer alertType;
 
     /**
-     * 预警级别（1:低 2:中 3:高）
+     * 预警消息
      */
-    @TableField("alert_level")
-    private Integer alertLevel;
+    @TableField("alert_message")
+    private String alertMessage;
 
     /**
      * 触发值
@@ -58,40 +52,28 @@ public class AlertHistory {
     private BigDecimal triggerValue;
 
     /**
-     * 预警阈值
+     * 阈值
      */
     @TableField("threshold")
     private BigDecimal threshold;
 
     /**
-     * 预警内容
-     */
-    @TableField("alert_content")
-    private String alertContent;
-
-    /**
-     * 通知方式（1:邮件 2:短信 3:WebSocket 4:全部）
-     */
-    @TableField("notification_type")
-    private Integer notificationType;
-
-    /**
-     * 通知状态（0:未发送 1:已发送 2:发送失败）
+     * 通知状态（0:未通知 1:已通知）
      */
     @TableField("notification_status")
     private Integer notificationStatus;
 
     /**
-     * 处理状态（0:未处理 1:已处理 2:已忽略）
+     * 通知时间
+     */
+    @TableField("notification_time")
+    private LocalDateTime notificationTime;
+
+    /**
+     * 处理状态（0:未处理 1:已处理）
      */
     @TableField("process_status")
     private Integer processStatus;
-
-    /**
-     * 处理人
-     */
-    @TableField("process_by")
-    private String processBy;
 
     /**
      * 处理时间
@@ -106,15 +88,8 @@ public class AlertHistory {
     private String processRemark;
 
     /**
-     * 触发时间
+     * 创建时间
      */
     @TableField(value = "create_time", fill = FieldFill.INSERT)
     private LocalDateTime createTime;
-
-    /**
-     * 逻辑删除标识（0:未删除 1:已删除）
-     */
-    @TableLogic
-    @TableField("deleted")
-    private Integer deleted;
 } 

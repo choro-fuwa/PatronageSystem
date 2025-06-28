@@ -2,10 +2,10 @@ import request from '@/utils/request'
 
 // 策略管理相关API
 export const strategyApi = {
-  // 获取策略列表
+// 获取策略列表
   getStrategyList(params) {
-    return request({
-      url: '/strategy/list',
+  return request({
+    url: '/strategy/list',
       method: 'get',
       params
     })
@@ -15,26 +15,26 @@ export const strategyApi = {
   getStrategyDetail(id) {
     return request({
       url: `/strategy/detail/${id}`,
-      method: 'get'
-    })
+    method: 'get'
+  })
   },
 
-  // 创建策略
+// 创建策略
   createStrategy(data) {
-    return request({
-      url: '/strategy/create',
-      method: 'post',
-      data
-    })
+  return request({
+    url: '/strategy/create',
+    method: 'post',
+    data
+  })
   },
 
   // 更新策略
   updateStrategy(data) {
-    return request({
+  return request({
       url: '/strategy/update',
-      method: 'put',
-      data
-    })
+    method: 'put',
+    data
+  })
   },
 
   // 删除策略
@@ -61,7 +61,7 @@ export const strategyApi = {
     })
   },
 
-  // 停止策略
+// 停止策略
   stopStrategy(id) {
     return request({
       url: `/strategy/stop/${id}`,
@@ -88,10 +88,10 @@ export const strategyApi = {
 
   // 启动模拟运行
   startSimulation(id) {
-    return request({
+  return request({
       url: `/api/v1/strategies/${id}/simulate`,
-      method: 'post'
-    })
+    method: 'post'
+  })
   },
 
   // 获取策略持仓
@@ -136,23 +136,23 @@ export const strategyApi = {
     })
   },
 
-  // 获取策略监控数据
+// 获取策略监控数据
   getStrategyMonitorData(id) {
-    return request({
+  return request({
       url: `/monitor/strategy/${id}`,
-      method: 'get'
-    })
+    method: 'get'
+  })
   },
 
   // 获取策略风险指标
   getStrategyRiskMetrics(id) {
-    return request({
+  return request({
       url: `/api/v1/strategies/${id}/risk-metrics`,
-      method: 'get'
-    })
+    method: 'get'
+  })
   },
 
-  // 设置预警规则
+// 设置预警规则
   setStrategyAlertRules(id, rules) {
     return request({
       url: `/api/v1/strategies/${id}/alert-rules`,
@@ -203,7 +203,16 @@ export const strategyApi = {
       method: 'post',
       data
     })
-  }
+  },
+
+  // 策略调整
+  adjustStrategy(data) {
+  return request({
+      url: '/strategy/adjust',
+    method: 'post',
+    data
+  })
+}
 }
 
 // 监控相关API
@@ -254,19 +263,19 @@ export const monitorApi = {
 
   // 获取风险归因
   getRiskAttribution(strategyId) {
-    return request({
+  return request({
       url: `/api/v1/monitor/strategies/${strategyId}/risk-attribution`,
-      method: 'get'
-    })
+    method: 'get'
+  })
   },
 
   // 创建预警规则
   createAlert(data) {
-    return request({
+  return request({
       url: '/monitor/alert/create',
-      method: 'post',
-      data
-    })
+    method: 'post',
+    data
+  })
   },
 
   // 更新预警规则
@@ -395,10 +404,10 @@ export const backtestApi = {
 
   // 获取回测图表数据
   getBacktestChartData(backtestId) {
-    return request({
+  return request({
       url: `/backtest/chart/${backtestId}`,
-      method: 'get'
-    })
+    method: 'get'
+  })
   },
 
   // 删除回测结果
@@ -416,3 +425,58 @@ export default {
   ...monitorApi,
   ...backtestApi
 }
+
+// 单独导出的函数，用于兼容性
+export const getStrategyList = (params) => strategyApi.getStrategyList(params)
+export const getStrategyDetail = (id) => strategyApi.getStrategyDetail(id)
+export const createStrategy = (data) => strategyApi.createStrategy(data)
+export const updateStrategy = (data) => strategyApi.updateStrategy(data)
+export const deleteStrategy = (id) => strategyApi.deleteStrategy(id)
+export const startStrategy = (id) => strategyApi.startStrategy(id)
+export const pauseStrategy = (id) => strategyApi.pauseStrategy(id)
+export const stopStrategy = (id) => strategyApi.stopStrategy(id)
+export const getStrategyStatistics = () => strategyApi.getStrategyStatistics()
+export const runBacktest = (id, params) => strategyApi.runBacktest(id, params)
+export const startSimulation = (id) => strategyApi.startSimulation(id)
+export const getStrategyPositions = (id) => strategyApi.getStrategyPositions(id)
+export const executeRebalance = (id, type) => strategyApi.executeRebalance(id, type)
+export const adjustPositions = (id, data) => strategyApi.adjustPositions(id, data)
+export const getAdjustmentHistory = (id) => strategyApi.getAdjustmentHistory(id)
+export const getBacktestHistory = (id) => strategyApi.getBacktestHistory(id)
+export const getStrategyMonitorData = (id) => strategyApi.getStrategyMonitorData(id)
+export const getStrategyRiskMetrics = (id) => strategyApi.getStrategyRiskMetrics(id)
+export const setStrategyAlertRules = (id, rules) => strategyApi.setStrategyAlertRules(id, rules)
+export const copyStrategy = (id, name) => strategyApi.copyStrategy(id, name)
+export const exportStrategyConfig = (id) => strategyApi.exportStrategyConfig(id)
+export const importStrategyConfig = (data) => strategyApi.importStrategyConfig(data)
+export const approveStrategy = (id, data) => strategyApi.approveStrategy(id, data)
+export const rejectStrategy = (id, data) => strategyApi.rejectStrategy(id, data)
+export const adjustStrategy = (data) => strategyApi.adjustStrategy(data)
+export const getBacktestResult = (id) => strategyApi.getBacktestResultDetail(id)
+
+// 回测相关
+export const getBacktestData = (id) => strategyApi.getBacktestData(id)
+export const getBacktestReport = (id) => strategyApi.getBacktestReport(id)
+export const performStressTest = (strategyId, scenarios) => strategyApi.performStressTest(strategyId, scenarios)
+export const executeBacktest = (params) => strategyApi.executeBacktest(params)
+export const getBacktestProgress = (backtestId) => strategyApi.getBacktestProgress(backtestId)
+export const stopBacktest = (backtestId) => strategyApi.stopBacktest(backtestId)
+export const getBacktestResultList = (params) => strategyApi.getBacktestResultList(params)
+export const getBacktestResultDetail = (backtestId) => strategyApi.getBacktestResultDetail(backtestId)
+export const getBacktestChartData = (backtestId) => strategyApi.getBacktestChartData(backtestId)
+export const deleteBacktestResult = (backtestId) => strategyApi.deleteBacktestResult(backtestId)
+
+// 监控相关
+export const getMonitorOverview = () => strategyApi.getMonitorOverview()
+export const getAlertList = (params) => strategyApi.getAlertList(params)
+export const getAlertHistoryList = (params) => strategyApi.getAlertHistoryList(params)
+export const getPerformanceAnalysis = (params) => strategyApi.getPerformanceAnalysis(params)
+export const getReturnAttribution = (strategyId, params) => strategyApi.getReturnAttribution(strategyId, params)
+export const getRiskAttribution = (strategyId) => strategyApi.getRiskAttribution(strategyId)
+export const createAlert = (data) => strategyApi.createAlert(data)
+export const updateAlert = (data) => strategyApi.updateAlert(data)
+export const deleteAlert = (alertId) => strategyApi.deleteAlert(alertId)
+export const toggleAlert = (alertId, enabled) => strategyApi.toggleAlert(alertId, enabled)
+export const processAlert = (alertHistoryId, processBy, processRemark) => strategyApi.processAlert(alertHistoryId, processBy, processRemark)
+export const getMonitorDashboardData = () => strategyApi.getMonitorDashboardData()
+export const checkStrategyAlerts = (strategyId) => strategyApi.checkStrategyAlerts(strategyId)

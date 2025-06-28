@@ -1,269 +1,380 @@
-# 策略管理子系统（patronage-strategy）
+# 策略管理子系统
 
-## 模块简介
-本模块为策略管理子系统，基于Spring Boot + MyBatis-Plus，支持策略的创建、回测、监控、预警等全流程管理。
+## 项目概述
 
-## 主要功能
-- 策略管理（增删改查、状态流转）
-- 回测与模拟
-- 监控与预警（实时监控、预警推送）
-- 再平衡与调仓
+策略管理子系统是Patronage量化投资平台的核心模块之一，负责策略的创建、回测、监控和预警等功能。
 
-## 技术栈
-- Spring Boot
-- MyBatis-Plus
-- JPype（Java调用Python）
-- Fastjson2
-- Redis、MySQL
-- Swagger3（OpenAPI）接口文档
+## 技术架构
 
-## 启动方式
-1. 配置数据库、Redis等信息于`src/main/resources/application.yml`
-2. 初始化数据库：执行`database/init.sql`
-3. 启动主类：`com.patronage.strategy.StrategyApplication`
-4. 访问接口文档：http://localhost:8081/swagger-ui.html 或 http://localhost:8081/doc.html
+### 后端技术栈
+- **Spring Boot 2.7+**: 主框架
+- **MyBatis-Plus**: ORM框架
+- **MySQL**: 主数据库
+- **Redis**: 缓存
+- **Kafka**: 消息队列
+- **Python**: 回测引擎
+- **Jython**: Python与Java集成
 
-## 依赖说明
-- 依赖父POM `patronage-system`，如需独立运行请补全相关依赖
-- 需安装Python及相关回测脚本依赖（见`python/backtest_engine.py`）
+### 前端技术栈
+- **Vue 3**: 前端框架
+- **Element Plus**: UI组件库
+- **ECharts**: 数据可视化
+- **Axios**: HTTP客户端
 
-## 目录结构
-- entity/        实体类
-- mapper/        MyBatis-Plus Mapper接口
-- service/       业务接口与实现
-- controller/    控制器
-- config/        配置类（如SwaggerConfig）
-- exception/     全局异常处理
-- database/      数据库建表SQL
-- python/        Python回测引擎示例
+## 功能模块
 
-## 统一响应格式
-所有接口返回如下结构：
-```json
+### 1. 策略管理
+- 策略创建与编辑
+- 策略列表查询
+- 策略状态管理（启动/停止/暂停）
+- 策略参数配置
+
+### 2. 回测引擎
+- 历史数据回测
+- 多策略回测
+- 回测结果分析
+- 性能指标计算
+
+### 3. 监控预警
+- 实时策略监控
+- 预警规则配置
+- 预警通知推送
+- 预警历史记录
+
+### 4. 持仓管理
+- 策略持仓查询
+- 持仓分析
+- 风险控制
+
+## 数据库设计
+
+### 核心表结构
+
+#### 1. strategy（策略表）
+```sql
+- id: 主键ID
+- strategy_name: 策略名称
+- description: 策略描述
+- strategy_type: 策略类型
+- status: 策略状态
+- initial_capital: 初始资金
+- current_capital: 当前资金
+- max_drawdown: 最大回撤
+- annual_return: 年化收益率
+- sharpe_ratio: 夏普比率
+- parameters: 策略参数（JSON）
+```
+
+#### 2. strategy_position（策略持仓表）
+```sql
+- id: 主键ID
+- strategy_id: 策略ID
+- stock_code: 股票代码
+- stock_name: 股票名称
+- quantity: 持仓数量
+- cost_price: 持仓成本
+- current_price: 当前价格
+- market_value: 持仓市值
+- unrealized_pnl: 浮动盈亏
+- position_ratio: 持仓比例
+```
+
+#### 3. backtest_result（回测结果表）
+```sql
+- id: 主键ID
+- strategy_id: 策略ID
+- start_date: 回测开始日期
+- end_date: 回测结束日期
+- initial_capital: 初始资金
+- final_capital: 最终资金
+- total_return: 总收益率
+- annual_return: 年化收益率
+- max_drawdown: 最大回撤
+- sharpe_ratio: 夏普比率
+- win_rate: 胜率
+- trade_count: 交易次数
+- result_data: 回测结果数据（JSON）
+```
+
+#### 4. strategy_alert（策略预警表）
+```sql
+- id: 主键ID
+- strategy_id: 策略ID
+- alert_name: 预警名称
+- alert_type: 预警类型
+- condition_type: 预警条件
+- threshold: 预警阈值
+- is_enabled: 是否启用
+- notification_type: 通知方式
+- recipients: 通知接收人
+```
+
+#### 5. alert_history（预警历史表）
+```sql
+- id: 主键ID
+- strategy_id: 策略ID
+- alert_id: 预警规则ID
+- alert_type: 预警类型
+- alert_message: 预警消息
+- trigger_value: 触发值
+- threshold: 阈值
+- notification_status: 通知状态
+- process_status: 处理状态
+```
+
+## API接口文档
+
+### 策略管理接口
+
+#### 1. 分页查询策略列表
+```
+GET /api/strategy/list
+参数：
+- pageNum: 页码（默认1）
+- pageSize: 页大小（默认10）
+- strategyName: 策略名称（可选）
+- strategyType: 策略类型（可选）
+- status: 策略状态（可选）
+```
+
+#### 2. 获取策略详情
+```
+GET /api/strategy/{id}
+```
+
+#### 3. 创建策略
+```
+POST /api/strategy
+请求体：Strategy对象
+```
+
+#### 4. 更新策略
+```
+PUT /api/strategy/{id}
+请求体：Strategy对象
+```
+
+#### 5. 删除策略
+```
+DELETE /api/strategy/{id}
+```
+
+#### 6. 启动策略
+```
+POST /api/strategy/{id}/start
+```
+
+#### 7. 停止策略
+```
+POST /api/strategy/{id}/stop
+```
+
+#### 8. 暂停策略
+```
+POST /api/strategy/{id}/pause
+```
+
+### 回测接口
+
+#### 1. 执行回测
+```
+POST /api/backtest/run
+请求体：
 {
-  "success": true,
-  "data": {},
-  "message": "操作成功"
+  "strategyId": 1,
+  "startDate": "2024-01-01 00:00:00",
+  "endDate": "2024-12-31 23:59:59",
+  "parameters": {}
 }
 ```
 
-## 其他
-- 推荐使用IDEA+Lombok插件开发
-- 推荐使用Postman/Swagger调试接口
-- 如需扩展策略类型、预警类型等，请在entity和service层补充实现
+#### 2. 获取回测结果
+```
+GET /api/backtest/{id}
+```
 
-###策略管理子系统操作流程详解
-#### **整体流程概览**
-1. **创建策略**→2. **回测/模拟**→3. **监控运行**→4. **再平衡调整**
----
-### **一、策略创建**
-**步骤1：选择策略类型**
-系统提供4类策略模板，用户根据需求选择：
-- **大类资产配置策略**（如60/40股债模型）
-- **FOF组合管理**（多基金组合）
-- **基金指数组合**（自定义指数化配置）
-- **择时组合**（基于信号动态调整）
-**步骤2：配置策略参数**
-- **大类资产配置**：通过4步完成（示例）：
-1.选择资产类别（股票、债券、商品等）
-2.设置权重比例（如股票60%、债券40%）
-3.绑定具体基金/标的（从数据库选择）
-4.设定再平衡条件（定期或阈值触发）
-- **FOF组合**：
--添加底层基金，设置权重约束（如单基金≤20%）
--支持风险平价、均值方差等优化模型
-- **择时策略**：
-1.选择信号源（如技术指标、宏观经济指标）
-2.设定调仓规则（如"RSI>70时减仓"）
-3.绑定执行标的
-**步骤3：保存策略**
--命名策略（如"稳健股债轮动-2023"）
--选择运行模式（立即回测/仅保存）
----
-### **二、策略回测与模拟**
-**1.历史回测**
--选择回测时间段（如2018-2023）
--设置初始资金、手续费等参数
-- **生成报告**：展示年化收益、最大回撤、夏普比率等指标
-- **可视化分析**：净值曲线、持仓热力图、风险贡献图
-**2.模拟运行**
--基于实时市场数据虚拟交易
--支持手动暂停/调整参数
--模拟结果每日更新（T+1净值估算）
----
-### **三、策略监控与预警**
-**1.实时监控面板**
-- **持仓跟踪**：当前持仓基金、权重偏离情况
-- **业绩归因**：收益来源（资产配置vs标的选择）
-- **风险指标**：波动率、VaR、行业集中度
-**2.预警功能**
-- **条件触发**：
--单日回撤＞5%→ 邮件通知
--权重偏离＞10%→ 弹窗提示
-- **人工干预**：支持手动暂停策略
----
-### **四、策略再平衡**
-**1.主动调仓**
--用户手动调整权重/更换标的
--系统计算预估交易成本及税负
-**2.被动调仓**
-- **定期再平衡**（如季度末自动恢复初始权重）
-- **阈值再平衡**（如某资产权重偏离±5%时触发）
-**执行流程**：
-1.系统生成调仓清单（买卖数量、预估成交价）
-2.用户确认或修改指令
-3.指令传递至交易子系统执行
----
-### **五、策略详情查看**
-- **持仓基金**：当前标的、成本价、浮动盈亏
-- **调仓记录**：历史操作时间、价格、原因
-- **收益分析**：分阶段收益（近1月/1年/成立以来）
-- **对比基准**：与沪深300、中债指数等比较
----
-### **关键操作界面示例**
-1. **策略创建向导**：分步表单（带进度条）
-2. **回测结果页**：多标签页（统计指标/净值图/交易记录）
-3. **监控看板**：可定制仪表盘（拖拽组件）
-4. **预警设置弹窗**：勾选条件+设置阈值
----
-### **注意事项**
-- **权限控制**：高风险策略需风控岗二次审核
-- **数据延迟**：基金净值T+1更新，股票实时
-- **合规提示**：回测结果不代表未来表现    
+#### 3. 获取回测历史
+```
+GET /api/backtest/history/{strategyId}
+```
 
-## 🌟 技术架构
-**后端框架**  
-- `Spring Boot 2.7.x`：提供RESTful API和核心业务逻辑  
-- `JPype 1.4.x`：Python-Java桥接，用于量化回测引擎  
-- `MyBatis-Plus`：数据库ORM层   
+### 监控预警接口
 
-**前端框架**  
-- `Vue 3.x`：前端主框架  
-- `Element Plus`：UI组件库  
-- `ECharts 5.x`：可视化图表  
-- `Axios`：HTTP请求库  
+#### 1. 创建预警规则
+```
+POST /api/monitor/alert
+请求体：StrategyAlert对象
+```
 
-**量化引擎**  
-- `Python 3.8`：回测核心计算  
-- `pandas/numpy`：数据处理  
-- `TA-Lib`：技术指标计算  
+#### 2. 获取策略预警规则
+```
+GET /api/monitor/alert/{strategyId}
+```
 
-## 🛠️ 开发环境配置
-### 后端要求
+#### 3. 获取预警历史
+```
+GET /api/monitor/history/{strategyId}
+参数：
+- alertType: 预警类型（可选）
+- processStatus: 处理状态（可选）
+```
+
+## 部署说明
+
+### 环境要求
+- JDK 8+
+- MySQL 5.7+
+- Redis 5.0+
+- Python 3.7+
+
+### 安装步骤
+
+1. **克隆项目**
+```bash
+git clone <repository-url>
+cd patronage-strategy
+```
+
+2. **配置数据库**
+```bash
+# 创建数据库
+mysql -u root -p < database/init.sql
+```
+
+3. **修改配置文件**
+```bash
+# 编辑 application.yml
+vim src/main/resources/application.yml
+```
+
+4. **安装Python依赖**
+```bash
+pip install pandas numpy
+```
+
+5. **启动应用**
+```bash
+mvn spring-boot:run
+```
+
+### 配置说明
+
+#### 数据库配置
 ```yaml
-JDK: 11+
-Maven: 3.8+
-Python: 3.8 (需安装以下包)
-  - pip install jpype1 numpy pandas backtrader
-前端要求
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/patronage_strategy
+    username: root
+    password: 123456
+```
 
+#### Redis配置
+```yaml
+spring:
+  redis:
+    host: localhost
+    port: 6379
+    password: 
+    database: 0
+```
 
-## 一、后端完善建议
+#### Kafka配置
+```yaml
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+```
 
-### 1. 主要模块与接口
+## 开发指南
 
-#### 1.1 策略管理模块
-- **接口**：
-  - 创建策略：`POST /api/v1/strategies`
-  - 查询策略详情：`GET /api/v1/strategies/{id}`
-  - 更新策略：`PUT /api/v1/strategies/{id}`
-  - 查询策略列表：`GET /api/v1/strategies`
-- **实现要点**：
-  - 支持多种策略类型（大类资产配置、FOF、指数、择时）
-  - 策略参数用JSON存储，便于灵活扩展
-  - 支持策略状态流转（创建、回测中、运行中、已停止）
+### 项目结构
+```
+patronage-strategy/
+├── src/main/java/com/patronage/strategy/
+│   ├── config/           # 配置类
+│   ├── controller/       # 控制器
+│   ├── entity/          # 实体类
+│   ├── mapper/          # Mapper接口
+│   ├── service/         # 服务接口
+│   │   └── impl/        # 服务实现
+│   ├── exception/       # 异常处理
+│   └── common/          # 公共类
+├── src/main/resources/
+│   ├── application.yml  # 配置文件
+│   └── mapper/          # MyBatis XML文件
+├── python/
+│   └── backtest_engine.py  # Python回测引擎
+└── database/
+    └── init.sql         # 数据库初始化脚本
+```
 
-#### 1.2 回测与模拟模块
-- **接口**：
-  - 发起回测：`POST /api/v1/strategies/{id}/backtest`
-  - 获取回测历史：`GET /api/v1/strategies/{id}/backtest-history`
-- **实现要点**：
-  - 回测参数包括时间区间、初始资金、手续费等
-  - 回测引擎可用JPype调用Python（如backtrader/pandas）
-  - 回测结果包括收益、回撤、夏普比率等，支持可视化数据
+### 开发规范
 
-#### 1.3 监控与预警模块
-- **接口**：
-  - 获取实时监控数据：`GET /api/v1/strategies/{id}/monitor`
-  - 设置预警规则：`POST /api/v1/strategies/{id}/alert-rules`
-  - 获取预警历史：`GET /api/v1/strategies/{id}/alerts`
-- **实现要点**：
-  - 实时监控持仓、收益、风险等
-  - 支持多种预警条件（回撤、权重偏离等）
-  - 预警可通过WebSocket/邮件/弹窗推送
+1. **命名规范**
+   - 类名：大驼峰命名法
+   - 方法名：小驼峰命名法
+   - 常量：全大写+下划线
+   - 包名：全小写
 
-#### 1.4 再平衡与调仓模块
-- **接口**：
-  - 执行再平衡：`POST /api/v1/strategies/{id}/rebalance`
-  - 手动调仓：`POST /api/v1/strategies/{id}/adjust`
-  - 获取调仓历史：`GET /api/v1/strategies/{id}/adjustments`
-- **实现要点**：
-  - 支持定期和阈值再平衡
-  - 记录调仓明细，便于追溯
+2. **代码规范**
+   - 使用Lombok简化代码
+   - 统一异常处理
+   - 统一响应格式
+   - 添加详细注释
 
-#### 1.5 实体类建议
-- `Strategy`、`StrategyParameter`、`BacktestResult`、`StrategyPosition`、`StrategyAdjustment`、`StrategyAlert`等，字段参考README.md
+3. **数据库规范**
+   - 使用MyBatis-Plus
+   - 字段命名使用下划线
+   - 添加索引优化查询
 
----
+### 测试
 
-## 二、前端完善建议
+#### 单元测试
+```bash
+mvn test
+```
 
-### 1. 主要页面与功能
+#### 接口测试
+```bash
+# 启动应用后访问
+http://localhost:8081/strategy/swagger-ui.html
+```
 
-#### 1.1 策略创建向导
-- 分步表单（选择类型、配置参数、绑定标的、设置再平衡、命名保存）
-- 进度条指示
-- 表单校验与动态参数渲染
+## 常见问题
 
-#### 1.2 策略列表页
-- 展示所有策略，支持筛选、搜索、分页
-- 操作按钮：详情、回测、监控、再平衡、删除等
+### 1. 数据库连接失败
+- 检查MySQL服务是否启动
+- 检查数据库连接配置
+- 检查用户名密码是否正确
 
-#### 1.3 策略详情页
-- 展示策略基本信息、参数、当前持仓、调仓记录、收益分析、对比基准等
+### 2. Python回测失败
+- 检查Python环境是否正确安装
+- 检查pandas、numpy等依赖是否安装
+- 检查Python脚本路径是否正确
 
-#### 1.4 回测结果页
-- 多标签页展示统计指标、净值曲线、交易记录、风险贡献等
-- 图表用ECharts实现
+### 3. Redis连接失败
+- 检查Redis服务是否启动
+- 检查Redis连接配置
+- 检查网络连接
 
-#### 1.5 监控看板
-- 可定制仪表盘（持仓、收益、风险、预警等组件可拖拽布局）
-- 实时刷新，异常弹窗/通知
+## 更新日志
 
-#### 1.6 预警设置弹窗
-- 勾选预警条件，设置阈值
-- 支持多种通知方式
+### v1.0.0 (2024-01-01)
+- 初始版本发布
+- 实现基础策略管理功能
+- 实现回测引擎
+- 实现监控预警功能
 
----
+## 贡献指南
 
-### 2. 技术实现建议
+1. Fork项目
+2. 创建功能分支
+3. 提交代码
+4. 创建Pull Request
 
-- **Vue 3 + Element Plus**：表单、表格、弹窗、布局
-- **ECharts**：所有可视化图表
-- **Axios**：API请求
-- **Vue Router**：多页面路由
-- **WebSocket**：实时监控/预警推送
+## 许可证
 
----
-
-## 三、数据流与交互
-
-1. 用户在前端发起操作（创建、回测、监控等）
-2. 前端通过Axios调用RESTful API
-3. 后端处理业务逻辑，读写数据库，调用回测引擎
-4. 结果返回前端，前端渲染数据/图表
-5. 监控/预警通过WebSocket或轮询推送到前端
-
----
-
-## 四、数据库表建议
-
-- `strategy`（策略配置）
-- `strategy_parameter`（参数明细）
-- `backtest_result`（回测结果）
-- `strategy_position`（持仓明细）
-- `strategy_adjustment`（调仓记录）
-- `strategy_alert`（预警规则）
-- `alert_history`（预警历史）
-
----
+MIT License

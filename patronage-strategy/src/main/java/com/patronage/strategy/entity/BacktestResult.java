@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -29,22 +28,16 @@ public class BacktestResult {
     private Long strategyId;
 
     /**
-     * 回测名称
-     */
-    @TableField("backtest_name")
-    private String backtestName;
-
-    /**
      * 回测开始日期
      */
     @TableField("start_date")
-    private LocalDate startDate;
+    private LocalDateTime startDate;
 
     /**
      * 回测结束日期
      */
     @TableField("end_date")
-    private LocalDate endDate;
+    private LocalDateTime endDate;
 
     /**
      * 初始资金
@@ -89,22 +82,10 @@ public class BacktestResult {
     private BigDecimal winRate;
 
     /**
-     * 总交易次数
+     * 交易次数
      */
-    @TableField("total_trades")
-    private Integer totalTrades;
-
-    /**
-     * 盈利交易次数
-     */
-    @TableField("winning_trades")
-    private Integer winningTrades;
-
-    /**
-     * 平均持仓时间（天）
-     */
-    @TableField("avg_holding_days")
-    private BigDecimal avgHoldingDays;
+    @TableField("trade_count")
+    private Integer tradeCount;
 
     /**
      * 回测参数（JSON格式）
@@ -113,16 +94,10 @@ public class BacktestResult {
     private String parameters;
 
     /**
-     * 回测结果详情（JSON格式）
+     * 回测结果数据（JSON格式，包含每日收益等）
      */
-    @TableField("result_details")
-    private String resultDetails;
-
-    /**
-     * 回测状态（0:进行中 1:已完成 2:失败）
-     */
-    @TableField("status")
-    private Integer status;
+    @TableField("result_data")
+    private String resultData;
 
     /**
      * 创建时间
@@ -131,21 +106,8 @@ public class BacktestResult {
     private LocalDateTime createTime;
 
     /**
-     * 更新时间
-     */
-    @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
-
-    /**
      * 创建人
      */
     @TableField("create_by")
     private String createBy;
-
-    /**
-     * 逻辑删除标识（0:未删除 1:已删除）
-     */
-    @TableLogic
-    @TableField("deleted")
-    private Integer deleted;
 } 

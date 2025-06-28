@@ -2,289 +2,295 @@
 # -*- coding: utf-8 -*-
 """
 策略回测引擎
-用于Java通过JPype调用的Python回测模块
 """
 
 import pandas as pd
 import numpy as np
 import json
+import sys
 from datetime import datetime, timedelta
-import logging
-
-# 配置日志
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from typing import Dict, List, Any
 
 class BacktestEngine:
-    """回测引擎主类"""
+    """回测引擎类"""
     
-    def __init__(self):
-        self.data = None
-        self.positions = []
-        self.cash = 0
-        self.initial_capital = 0
-        self.current_capital = 0
+    def __init__(self, initial_capital: float = 100000):
+        self.initial_capital = initial_capital
+        self.current_capital = initial_capital
+        self.positions = {}
         self.trades = []
-        self.equity_curve = []
+        self.daily_returns = []
         
-    def load_data(self, data_path):
-        """加载历史数据"""
+    def run_backtest(self, strategy_params: Dict[str, Any], 
+                    start_date: str, end_date: str) -> Dict[str, Any]:
+        """
+        执行回测
+        
+        Args:
+            strategy_params: 策略参数
+            start_date: 开始日期
+            end_date: 结束日期
+            
+        Returns:
+            回测结果字典
+        """
         try:
-            self.data = pd.read_csv(data_path)
-            self.data['date'] = pd.to_datetime(self.data['date'])
-            self.data = self.data.sort_values('date').reset_index(drop=True)
-            logger.info(f"数据加载成功，共{len(self.data)}条记录")
-            return True
-        except Exception as e:
-            logger.error(f"数据加载失败: {e}")
-            return False
-    
-    def run_backtest(self, strategy_type, parameters, initial_capital):
-        """运行回测"""
-        try:
-            self.initial_capital = initial_capital
-            self.cash = initial_capital
-            self.current_capital = initial_capital
-            self.positions = []
-            self.trades = []
-            self.equity_curve = []
+            # 模拟股票数据（实际应用中应该从数据库或API获取）
+            stock_data = self._generate_mock_data(start_date, end_date)
             
-            # 解析策略参数
-            if isinstance(parameters, str):
-                params = json.loads(parameters)
-            else:
-                params = parameters
+            # 执行策略
+            self._execute_strategy(stock_data, strategy_params)
             
-            # 根据策略类型选择策略
-            if strategy_type == "ma_strategy":
-                self._run_ma_strategy(params)
-            elif strategy_type == "mean_reversion":
-                self._run_mean_reversion_strategy(params)
-            else:
-                raise ValueError(f"不支持的策略类型: {strategy_type}")
+            # 计算回测指标
+            results = self._calculate_metrics()
             
-            # 计算回测结果
-            result = self._calculate_results()
-            return result
+            return results
             
         except Exception as e:
-            logger.error(f"回测执行失败: {e}")
-            return None
+            return {
+                "error": str(e),
+                "success": False
+            }
     
-    def _run_ma_strategy(self, params):
-        """双均线策略"""
-        short_period = params.get('short_period', 5)
-        long_period = params.get('long_period', 20)
+    def _generate_mock_data(self, start_date: str, end_date: str) -> pd.DataFrame:
+        """生成模拟股票数据"""
+        start = datetime.strptime(start_date, "%Y-%m-%d")
+        end = datetime.strptime(end_date, "%Y-%m-%d")
         
-        # 计算移动平均线
-        self.data['ma_short'] = self.data['close'].rolling(window=short_period).mean()
-        self.data['ma_long'] = self.data['close'].rolling(window=long_period).mean()
+        # 生成日期序列
+        date_range = pd.date_range(start=start, end=end, freq='D')
         
-        # 生成信号
-        self.data['signal'] = 0
-        self.data.loc[self.data['ma_short'] > self.data['ma_long'], 'signal'] = 1  # 买入信号
-        self.data.loc[self.data['ma_short'] < self.data['ma_long'], 'signal'] = -1  # 卖出信号
+        # 模拟股票数据
+        np.random.seed(42)  # 固定随机种子，确保结果可重现
+        returns = np.random.normal(0.0005, 0.02, len(date_range))  # 日收益率
         
-        # 执行交易
-        for i in range(1, len(self.data)):
-            current_signal = self.data.iloc[i]['signal']
-            prev_signal = self.data.iloc[i-1]['signal']
-            
-            if current_signal != prev_signal and current_signal != 0:
-                if current_signal == 1:  # 买入
-                    self._buy(self.data.iloc[i]['date'], self.data.iloc[i]['close'])
-                elif current_signal == -1:  # 卖出
-                    self._sell(self.data.iloc[i]['date'], self.data.iloc[i]['close'])
-            
-            # 记录权益曲线
-            self._update_equity_curve(self.data.iloc[i]['date'], self.data.iloc[i]['close'])
-    
-    def _run_mean_reversion_strategy(self, params):
-        """均值回归策略"""
-        lookback_period = params.get('lookback_period', 20)
-        std_multiplier = params.get('std_multiplier', 2)
+        # 计算价格序列
+        prices = [100]  # 初始价格
+        for ret in returns[1:]:
+            prices.append(prices[-1] * (1 + ret))
         
-        # 计算移动平均和标准差
-        self.data['ma'] = self.data['close'].rolling(window=lookback_period).mean()
-        self.data['std'] = self.data['close'].rolling(window=lookback_period).std()
-        
-        # 生成信号
-        self.data['signal'] = 0
-        upper_band = self.data['ma'] + std_multiplier * self.data['std']
-        lower_band = self.data['ma'] - std_multiplier * self.data['std']
-        
-        self.data.loc[self.data['close'] < lower_band, 'signal'] = 1  # 买入信号
-        self.data.loc[self.data['close'] > upper_band, 'signal'] = -1  # 卖出信号
-        
-        # 执行交易
-        for i in range(1, len(self.data)):
-            current_signal = self.data.iloc[i]['signal']
-            prev_signal = self.data.iloc[i-1]['signal']
-            
-            if current_signal != prev_signal and current_signal != 0:
-                if current_signal == 1:  # 买入
-                    self._buy(self.data.iloc[i]['date'], self.data.iloc[i]['close'])
-                elif current_signal == -1:  # 卖出
-                    self._sell(self.data.iloc[i]['date'], self.data.iloc[i]['close'])
-            
-            # 记录权益曲线
-            self._update_equity_curve(self.data.iloc[i]['date'], self.data.iloc[i]['close'])
-    
-    def _buy(self, date, price):
-        """买入操作"""
-        if self.cash > 0:
-            shares = int(self.cash / price)
-            if shares > 0:
-                cost = shares * price
-                self.cash -= cost
-                self.positions.append({
-                    'date': date,
-                    'shares': shares,
-                    'price': price,
-                    'type': 'buy'
-                })
-                self.trades.append({
-                    'date': date,
-                    'type': 'buy',
-                    'shares': shares,
-                    'price': price,
-                    'value': cost
-                })
-                logger.info(f"买入: {date}, 价格: {price}, 数量: {shares}")
-    
-    def _sell(self, date, price):
-        """卖出操作"""
-        if self.positions:
-            total_shares = sum(pos['shares'] for pos in self.positions)
-            if total_shares > 0:
-                proceeds = total_shares * price
-                self.cash += proceeds
-                self.positions = []  # 清空持仓
-                self.trades.append({
-                    'date': date,
-                    'type': 'sell',
-                    'shares': total_shares,
-                    'price': price,
-                    'value': proceeds
-                })
-                logger.info(f"卖出: {date}, 价格: {price}, 数量: {total_shares}")
-    
-    def _update_equity_curve(self, date, price):
-        """更新权益曲线"""
-        position_value = sum(pos['shares'] for pos in self.positions) * price
-        self.current_capital = self.cash + position_value
-        self.equity_curve.append({
-            'date': date,
-            'equity': self.current_capital,
-            'cash': self.cash,
-            'position_value': position_value
+        # 创建DataFrame
+        data = pd.DataFrame({
+            'date': date_range,
+            'close': prices,
+            'volume': np.random.randint(1000000, 10000000, len(date_range))
         })
+        
+        return data
     
-    def _calculate_results(self):
-        """计算回测结果"""
-        if not self.equity_curve:
-            return None
+    def _execute_strategy(self, data: pd.DataFrame, params: Dict[str, Any]):
+        """执行策略逻辑"""
+        strategy_type = params.get('strategy_type', 'trend_following')
         
-        equity_df = pd.DataFrame(self.equity_curve)
-        trades_df = pd.DataFrame(self.trades)
+        if strategy_type == 'trend_following':
+            self._trend_following_strategy(data, params)
+        elif strategy_type == 'mean_reversion':
+            self._mean_reversion_strategy(data, params)
+        else:
+            # 默认简单买入持有策略
+            self._buy_and_hold_strategy(data)
+    
+    def _trend_following_strategy(self, data: pd.DataFrame, params: Dict[str, Any]):
+        """趋势跟踪策略"""
+        lookback = params.get('lookback_period', 20)
         
-        # 计算基本指标
-        initial_equity = self.initial_capital
-        final_equity = equity_df['equity'].iloc[-1]
-        total_return = (final_equity - initial_equity) / initial_equity
+        for i in range(lookback, len(data)):
+            # 计算移动平均
+            ma_short = data['close'].iloc[i-lookback:i].mean()
+            ma_long = data['close'].iloc[i-lookback*2:i].mean()
+            
+            current_price = data['close'].iloc[i]
+            
+            # 金叉买入，死叉卖出
+            if ma_short > ma_long and 'STOCK' not in self.positions:
+                # 买入
+                shares = int(self.current_capital * 0.95 / current_price)
+                if shares > 0:
+                    self.positions['STOCK'] = shares
+                    self.current_capital -= shares * current_price
+                    self.trades.append({
+                        'date': data['date'].iloc[i],
+                        'action': 'BUY',
+                        'price': current_price,
+                        'shares': shares
+                    })
+            
+            elif ma_short < ma_long and 'STOCK' in self.positions:
+                # 卖出
+                shares = self.positions['STOCK']
+                self.current_capital += shares * current_price
+                del self.positions['STOCK']
+                self.trades.append({
+                    'date': data['date'].iloc[i],
+                    'action': 'SELL',
+                    'price': current_price,
+                    'shares': shares
+                })
+    
+    def _mean_reversion_strategy(self, data: pd.DataFrame, params: Dict[str, Any]):
+        """均值回归策略"""
+        lookback = params.get('lookback_period', 20)
+        std_multiplier = params.get('std_multiplier', 2.0)
         
-        # 计算年化收益率
-        start_date = equity_df['date'].iloc[0]
-        end_date = equity_df['date'].iloc[-1]
-        days = (end_date - start_date).days
-        annual_return = (1 + total_return) ** (365 / days) - 1 if days > 0 else 0
+        for i in range(lookback, len(data)):
+            # 计算布林带
+            window = data['close'].iloc[i-lookback:i]
+            ma = window.mean()
+            std = window.std()
+            
+            upper_band = ma + std_multiplier * std
+            lower_band = ma - std_multiplier * std
+            
+            current_price = data['close'].iloc[i]
+            
+            # 价格突破下轨买入，突破上轨卖出
+            if current_price < lower_band and 'STOCK' not in self.positions:
+                shares = int(self.current_capital * 0.95 / current_price)
+                if shares > 0:
+                    self.positions['STOCK'] = shares
+                    self.current_capital -= shares * current_price
+                    self.trades.append({
+                        'date': data['date'].iloc[i],
+                        'action': 'BUY',
+                        'price': current_price,
+                        'shares': shares
+                    })
+            
+            elif current_price > upper_band and 'STOCK' in self.positions:
+                shares = self.positions['STOCK']
+                self.current_capital += shares * current_price
+                del self.positions['STOCK']
+                self.trades.append({
+                    'date': data['date'].iloc[i],
+                    'action': 'SELL',
+                    'price': current_price,
+                    'shares': shares
+                })
+    
+    def _buy_and_hold_strategy(self, data: pd.DataFrame):
+        """买入持有策略"""
+        if not self.trades:  # 只在第一天买入
+            current_price = data['close'].iloc[0]
+            shares = int(self.current_capital * 0.95 / current_price)
+            if shares > 0:
+                self.positions['STOCK'] = shares
+                self.current_capital -= shares * current_price
+                self.trades.append({
+                    'date': data['date'].iloc[0],
+                    'action': 'BUY',
+                    'price': current_price,
+                    'shares': shares
+                })
+    
+    def _calculate_metrics(self) -> Dict[str, Any]:
+        """计算回测指标"""
+        # 计算最终资金
+        final_capital = self.current_capital
+        for stock, shares in self.positions.items():
+            # 假设最后以100元卖出
+            final_capital += shares * 100
+        
+        # 计算收益率
+        total_return = (final_capital - self.initial_capital) / self.initial_capital
+        
+        # 计算年化收益率（假设回测期为一年）
+        annual_return = (1 + total_return) ** (252 / len(self.daily_returns)) - 1 if self.daily_returns else total_return
         
         # 计算最大回撤
-        equity_df['peak'] = equity_df['equity'].expanding().max()
-        equity_df['drawdown'] = (equity_df['equity'] - equity_df['peak']) / equity_df['peak']
-        max_drawdown = equity_df['drawdown'].min()
+        max_drawdown = self._calculate_max_drawdown()
         
         # 计算夏普比率
-        equity_df['daily_return'] = equity_df['equity'].pct_change()
-        sharpe_ratio = equity_df['daily_return'].mean() / equity_df['daily_return'].std() * np.sqrt(252) if equity_df['daily_return'].std() > 0 else 0
+        sharpe_ratio = self._calculate_sharpe_ratio()
         
         # 计算胜率
-        if len(trades_df) > 0:
-            winning_trades = len(trades_df[trades_df['type'] == 'sell'])
-            total_trades = len(trades_df[trades_df['type'] == 'sell'])
-            win_rate = winning_trades / total_trades if total_trades > 0 else 0
-        else:
-            win_rate = 0
-            total_trades = 0
-            winning_trades = 0
+        win_rate = self._calculate_win_rate()
         
-        result = {
-            'initial_capital': initial_equity,
-            'final_capital': final_equity,
-            'total_return': total_return,
-            'annual_return': annual_return,
-            'max_drawdown': max_drawdown,
-            'sharpe_ratio': sharpe_ratio,
-            'win_rate': win_rate,
-            'total_trades': total_trades,
-            'winning_trades': winning_trades,
-            'equity_curve': equity_df.to_dict('records'),
-            'trades': trades_df.to_dict('records')
+        return {
+            "success": True,
+            "initial_capital": self.initial_capital,
+            "final_capital": final_capital,
+            "total_return": total_return,
+            "annual_return": annual_return,
+            "max_drawdown": max_drawdown,
+            "sharpe_ratio": sharpe_ratio,
+            "win_rate": win_rate,
+            "trade_count": len(self.trades),
+            "trades": self.trades,
+            "daily_returns": self.daily_returns
         }
+    
+    def _calculate_max_drawdown(self) -> float:
+        """计算最大回撤"""
+        if not self.daily_returns:
+            return 0.0
         
-        return result
+        cumulative = np.cumprod(1 + np.array(self.daily_returns))
+        running_max = np.maximum.accumulate(cumulative)
+        drawdown = (cumulative - running_max) / running_max
+        return float(np.min(drawdown))
+    
+    def _calculate_sharpe_ratio(self) -> float:
+        """计算夏普比率"""
+        if not self.daily_returns:
+            return 0.0
+        
+        returns = np.array(self.daily_returns)
+        if len(returns) < 2:
+            return 0.0
+        
+        mean_return = np.mean(returns)
+        std_return = np.std(returns)
+        
+        if std_return == 0:
+            return 0.0
+        
+        # 假设无风险利率为0
+        sharpe_ratio = mean_return / std_return * np.sqrt(252)
+        return float(sharpe_ratio)
+    
+    def _calculate_win_rate(self) -> float:
+        """计算胜率"""
+        if not self.trades:
+            return 0.0
+        
+        wins = 0
+        for i in range(1, len(self.trades), 2):  # 每对买卖交易
+            if i < len(self.trades):
+                buy_price = self.trades[i-1]['price']
+                sell_price = self.trades[i]['price']
+                if sell_price > buy_price:
+                    wins += 1
+        
+        return wins / (len(self.trades) // 2) if len(self.trades) > 1 else 0.0
 
-# 全局回测引擎实例
-_engine = BacktestEngine()
-
-def run_backtest(strategy_type, parameters, data_path, initial_capital):
-    """运行回测的全局函数，供Java调用"""
+def main():
+    """主函数，用于命令行调用"""
+    if len(sys.argv) < 2:
+        print("Usage: python backtest_engine.py <json_params>")
+        sys.exit(1)
+    
     try:
-        # 加载数据
-        if not _engine.load_data(data_path):
-            return None
+        # 解析JSON参数
+        params = json.loads(sys.argv[1])
         
-        # 运行回测
-        result = _engine.run_backtest(strategy_type, parameters, initial_capital)
-        return json.dumps(result) if result else None
+        # 创建回测引擎
+        engine = BacktestEngine(initial_capital=params.get('initial_capital', 100000))
+        
+        # 执行回测
+        results = engine.run_backtest(
+            strategy_params=params.get('strategy_params', {}),
+            start_date=params.get('start_date', '2024-01-01'),
+            end_date=params.get('end_date', '2024-12-31')
+        )
+        
+        # 输出结果
+        print(json.dumps(results, indent=2, default=str))
         
     except Exception as e:
-        logger.error(f"回测执行失败: {e}")
-        return None
+        print(json.dumps({
+            "error": str(e),
+            "success": False
+        }))
 
-def get_backtest_progress(backtest_id):
-    """获取回测进度"""
-    return {
-        'status': 'completed',
-        'progress': 100
-    }
-
-# 测试代码
 if __name__ == "__main__":
-    # 生成测试数据
-    dates = pd.date_range('2023-01-01', '2023-12-31', freq='D')
-    np.random.seed(42)
-    prices = 100 + np.cumsum(np.random.randn(len(dates)) * 0.5)
-    
-    test_data = pd.DataFrame({
-        'date': dates,
-        'open': prices * 0.99,
-        'high': prices * 1.02,
-        'low': prices * 0.98,
-        'close': prices,
-        'volume': np.random.randint(1000, 10000, len(dates))
-    })
-    
-    # 保存测试数据
-    test_data.to_csv('test_data.csv', index=False)
-    
-    # 运行测试回测
-    result = run_backtest(
-        strategy_type="ma_strategy",
-        parameters='{"short_period": 5, "long_period": 20}',
-        data_path="test_data.csv",
-        initial_capital=100000
-    )
-    
-    print("回测结果:")
-    print(result) 
+    main() 

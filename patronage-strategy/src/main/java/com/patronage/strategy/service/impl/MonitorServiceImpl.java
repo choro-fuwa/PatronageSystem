@@ -1,18 +1,18 @@
 package com.patronage.strategy.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.patronage.strategy.entity.StrategyAlert;
 import com.patronage.strategy.entity.AlertHistory;
+import com.patronage.strategy.entity.StrategyAlert;
+import com.patronage.strategy.mapper.AlertHistoryMapper;
 import com.patronage.strategy.mapper.StrategyAlertMapper;
 import com.patronage.strategy.service.MonitorService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,124 +20,168 @@ import java.util.Map;
  */
 @Slf4j
 @Service
-public class MonitorServiceImpl extends ServiceImpl<StrategyAlertMapper, StrategyAlert> implements MonitorService {
+public class MonitorServiceImpl implements MonitorService {
+
+    @Autowired
+    private StrategyAlertMapper strategyAlertMapper;
+
+    @Autowired
+    private AlertHistoryMapper alertHistoryMapper;
 
     @Override
     public boolean createAlert(StrategyAlert alert) {
-        alert.setEnabled(1); // 默认启用
-        return this.save(alert);
+        alert.setCreateTime(LocalDateTime.now());
+        return strategyAlertMapper.insert(alert) > 0;
     }
 
     @Override
     public boolean updateAlert(StrategyAlert alert) {
-        return this.updateById(alert);
+        alert.setUpdateTime(LocalDateTime.now());
+        return strategyAlertMapper.updateById(alert) > 0;
     }
 
     @Override
     public boolean deleteAlert(Long alertId) {
-        return this.removeById(alertId);
+        return strategyAlertMapper.deleteById(alertId) > 0;
+    }
+
+    @Override
+    public List<StrategyAlert> getStrategyAlerts(Long strategyId) {
+        return strategyAlertMapper.selectList(
+            new LambdaQueryWrapper<StrategyAlert>()
+                .eq(StrategyAlert::getStrategyId, strategyId)
+                .orderByDesc(StrategyAlert::getCreateTime)
+        );
     }
 
     @Override
     public boolean toggleAlert(Long alertId, boolean enabled) {
-        StrategyAlert alert = this.getById(alertId);
+        StrategyAlert alert = strategyAlertMapper.selectById(alertId);
         if (alert != null) {
-            alert.setEnabled(enabled ? 1 : 0);
-            return this.updateById(alert);
+            alert.setIsEnabled(enabled ? 1 : 0);
+            alert.setUpdateTime(LocalDateTime.now());
+            return strategyAlertMapper.updateById(alert) > 0;
         }
         return false;
     }
 
     @Override
-    public IPage<StrategyAlert> getAlertPage(Integer pageNum, Integer pageSize, Long strategyId, Integer alertType) {
-        Page<StrategyAlert> page = new Page<>(pageNum, pageSize);
-        LambdaQueryWrapper<StrategyAlert> wrapper = new LambdaQueryWrapper<>();
+    public List<AlertHistory> getAlertHistory(Long strategyId, Integer alertType, Integer processStatus) {
+        LambdaQueryWrapper<AlertHistory> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(AlertHistory::getStrategyId, strategyId);
         
-        if (strategyId != null) {
-            wrapper.eq(StrategyAlert::getStrategyId, strategyId);
-        }
         if (alertType != null) {
-            wrapper.eq(StrategyAlert::getAlertType, alertType);
+            wrapper.eq(AlertHistory::getAlertType, alertType);
+        }
+        if (processStatus != null) {
+            wrapper.eq(AlertHistory::getProcessStatus, processStatus);
         }
         
-        wrapper.orderByDesc(StrategyAlert::getCreateTime);
-        return this.page(page, wrapper);
+        wrapper.orderByDesc(AlertHistory::getCreateTime);
+        return alertHistoryMapper.selectList(wrapper);
     }
 
     @Override
-    public IPage<AlertHistory> getAlertHistoryPage(Integer pageNum, Integer pageSize, Long strategyId, Integer alertType, Integer processStatus) {
-        // TODO: 注入AlertHistoryMapper
-        // 这里需要AlertHistoryMapper，暂时返回空结果
-        Page<AlertHistory> page = new Page<>(pageNum, pageSize);
-        return page;
-    }
-
-    @Override
-    public boolean processAlert(Long alertHistoryId, String processBy, String processRemark) {
-        // TODO: 处理预警历史记录
-        // 这里需要AlertHistoryMapper，暂时返回true
-        return true;
+    public boolean processAlert(Long alertId, String processRemark) {
+        AlertHistory alert = alertHistoryMapper.selectById(alertId);
+        if (alert != null) {
+            alert.setProcessStatus(1);
+            alert.setProcessTime(LocalDateTime.now());
+            alert.setProcessRemark(processRemark);
+            return alertHistoryMapper.updateById(alert) > 0;
+        }
+        return false;
     }
 
     @Override
     public Map<String, Object> getStrategyMonitorData(Long strategyId) {
         Map<String, Object> monitorData = new HashMap<>();
         
-        // TODO: 获取策略实时监控数据
-        // 包括当前收益率、回撤、持仓信息等
-        monitorData.put("currentReturn", new java.math.BigDecimal("0.08"));
-        monitorData.put("currentDrawdown", new java.math.BigDecimal("0.03"));
-        monitorData.put("positionCount", 5);
-        monitorData.put("totalValue", new java.math.BigDecimal("105000"));
-        monitorData.put("lastUpdateTime", LocalDateTime.now());
+        // 获取策略基本信息
+        // 这里需要注入StrategyService来获取策略信息
+        // Strategy strategy = strategyService.getById(strategyId);
+        
+        // 获取预警规则数量
+        long alertCount = strategyAlertMapper.selectCount(
+            new LambdaQueryWrapper<StrategyAlert>()
+                .eq(StrategyAlert::getStrategyId, strategyId)
+                .eq(StrategyAlert::getIsEnabled, 1)
+        );
+        
+        // 获取未处理预警数量
+        long unprocessedAlertCount = alertHistoryMapper.selectCount(
+            new LambdaQueryWrapper<AlertHistory>()
+                .eq(AlertHistory::getStrategyId, strategyId)
+                .eq(AlertHistory::getProcessStatus, 0)
+        );
+        
+        monitorData.put("alertCount", alertCount);
+        monitorData.put("unprocessedAlertCount", unprocessedAlertCount);
         
         return monitorData;
     }
 
     @Override
-    public Map<String, Object> getMonitorDashboardData() {
-        Map<String, Object> dashboardData = new HashMap<>();
+    public void checkAlertConditions(Long strategyId) {
+        log.info("检查策略预警条件，策略ID: {}", strategyId);
         
-        // TODO: 获取监控看板数据
-        // 包括所有策略的汇总信息
-        dashboardData.put("totalStrategies", 10);
-        dashboardData.put("runningStrategies", 6);
-        dashboardData.put("totalValue", new java.math.BigDecimal("1200000"));
-        dashboardData.put("totalReturn", new java.math.BigDecimal("0.12"));
-        dashboardData.put("alertCount", 3);
+        // 获取策略的所有启用预警规则
+        List<StrategyAlert> alerts = strategyAlertMapper.selectList(
+            new LambdaQueryWrapper<StrategyAlert>()
+                .eq(StrategyAlert::getStrategyId, strategyId)
+                .eq(StrategyAlert::getIsEnabled, 1)
+        );
         
-        return dashboardData;
+        for (StrategyAlert alert : alerts) {
+            try {
+                // 检查预警条件
+                boolean triggered = checkSingleAlertCondition(alert);
+                
+                if (triggered) {
+                    // 创建预警历史记录
+                    createAlertHistory(alert);
+                    
+                    // 发送通知
+                    sendNotification(alert);
+                }
+            } catch (Exception e) {
+                log.error("检查预警条件失败，预警ID: {}", alert.getId(), e);
+            }
+        }
     }
 
-    @Override
-    public void checkStrategyAlerts(Long strategyId) {
-        // TODO: 检查策略预警条件
-        // 1. 获取策略的预警规则
-        LambdaQueryWrapper<StrategyAlert> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(StrategyAlert::getStrategyId, strategyId)
-               .eq(StrategyAlert::getEnabled, 1);
-        
-        // 2. 获取策略当前状态
-        Map<String, Object> monitorData = getStrategyMonitorData(strategyId);
-        
-        // 3. 检查每个预警规则
-        this.list(wrapper).forEach(alert -> {
-            boolean triggered = checkAlertCondition(alert, monitorData);
-            if (triggered) {
-                createAlertHistory(alert, monitorData);
-            }
-        });
-    }
-    
-    private boolean checkAlertCondition(StrategyAlert alert, Map<String, Object> monitorData) {
-        // TODO: 根据预警类型和条件检查是否触发
-        // 这里简化处理，实际需要根据具体的预警逻辑判断
+    /**
+     * 检查单个预警条件
+     */
+    private boolean checkSingleAlertCondition(StrategyAlert alert) {
+        // 这里需要根据预警类型获取相应的策略数据
+        // 暂时返回false，实际实现需要根据具体业务逻辑
         return false;
     }
-    
-    private void createAlertHistory(StrategyAlert alert, Map<String, Object> monitorData) {
-        // TODO: 创建预警历史记录
-        // 这里需要AlertHistoryMapper
-        log.info("策略{}触发预警: {}", alert.getStrategyId(), alert.getAlertName());
+
+    /**
+     * 创建预警历史记录
+     */
+    private void createAlertHistory(StrategyAlert alert) {
+        AlertHistory history = new AlertHistory();
+        history.setStrategyId(alert.getStrategyId());
+        history.setAlertId(alert.getId());
+        history.setAlertType(alert.getAlertType());
+        history.setAlertMessage("策略触发预警条件: " + alert.getAlertName());
+        history.setThreshold(alert.getThreshold());
+        history.setNotificationStatus(0);
+        history.setProcessStatus(0);
+        history.setCreateTime(LocalDateTime.now());
+        
+        alertHistoryMapper.insert(history);
+    }
+
+    /**
+     * 发送通知
+     */
+    private void sendNotification(StrategyAlert alert) {
+        // 根据通知方式发送通知
+        // 这里可以实现邮件、短信、系统消息等通知方式
+        log.info("发送预警通知，预警ID: {}, 通知方式: {}", alert.getId(), alert.getNotificationType());
     }
 } 

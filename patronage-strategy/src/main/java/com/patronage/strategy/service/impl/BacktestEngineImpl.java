@@ -1,134 +1,129 @@
 package com.patronage.strategy.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.alibaba.fastjson2.JSON;
 import com.patronage.strategy.entity.BacktestResult;
+import com.patronage.strategy.entity.Strategy;
 import com.patronage.strategy.mapper.BacktestResultMapper;
 import com.patronage.strategy.service.BacktestEngine;
+import com.patronage.strategy.service.StrategyService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 /**
- * 回测引擎服务实现类
+ * 回测引擎实现类
  */
 @Slf4j
 @Service
-public class BacktestEngineImpl extends ServiceImpl<BacktestResultMapper, BacktestResult> implements BacktestEngine {
+public class BacktestEngineImpl implements BacktestEngine {
+
+    @Autowired
+    private BacktestResultMapper backtestResultMapper;
+
+    @Autowired
+    private StrategyService strategyService;
 
     @Override
-    public Long executeBacktest(Long strategyId, String backtestName, LocalDate startDate, LocalDate endDate, String parameters) {
-        // 创建回测记录
-        BacktestResult backtestResult = new BacktestResult();
-        backtestResult.setStrategyId(strategyId);
-        backtestResult.setBacktestName(backtestName);
-        backtestResult.setStartDate(startDate);
-        backtestResult.setEndDate(endDate);
-        backtestResult.setParameters(parameters);
-        backtestResult.setStatus(0); // 进行中
+    public BacktestResult runBacktest(Long strategyId, LocalDateTime startDate, LocalDateTime endDate, Map<String, Object> parameters) {
+        log.info("开始执行回测，策略ID: {}, 开始日期: {}, 结束日期: {}", strategyId, startDate, endDate);
         
-        this.save(backtestResult);
-        
-        // 异步执行回测
-        CompletableFuture.runAsync(() -> {
-            try {
-                // TODO: 调用Python脚本执行回测
-                // 这里应该调用JPype执行Python回测脚本
-                log.info("开始执行回测: {}", backtestResult.getId());
-                
-                // 模拟回测过程
-                Thread.sleep(5000);
-                
-                // 更新回测结果
-                backtestResult.setStatus(1); // 已完成
-                backtestResult.setTotalReturn(new java.math.BigDecimal("0.15"));
-                backtestResult.setAnnualReturn(new java.math.BigDecimal("0.12"));
-                backtestResult.setMaxDrawdown(new java.math.BigDecimal("0.08"));
-                backtestResult.setSharpeRatio(new java.math.BigDecimal("1.2"));
-                backtestResult.setWinRate(new java.math.BigDecimal("0.65"));
-                backtestResult.setTotalTrades(100);
-                backtestResult.setWinningTrades(65);
-                backtestResult.setAvgHoldingDays(new java.math.BigDecimal("5.5"));
-                
-                this.updateById(backtestResult);
-                log.info("回测完成: {}", backtestResult.getId());
-                
-            } catch (Exception e) {
-                log.error("回测执行失败: {}", backtestResult.getId(), e);
-                backtestResult.setStatus(2); // 失败
-                this.updateById(backtestResult);
-            }
-        });
-        
-        return backtestResult.getId();
-    }
-
-    @Override
-    public Map<String, Object> getBacktestProgress(Long backtestId) {
-        Map<String, Object> progress = new HashMap<>();
-        BacktestResult result = this.getById(backtestId);
-        
-        if (result != null) {
-            progress.put("status", result.getStatus());
-            progress.put("progress", result.getStatus() == 0 ? 50 : 100); // 模拟进度
+        // 获取策略信息
+        Strategy strategy = strategyService.getById(strategyId);
+        if (strategy == null) {
+            throw new RuntimeException("策略不存在");
         }
-        
-        return progress;
-    }
 
-    @Override
-    public boolean stopBacktest(Long backtestId) {
-        // TODO: 停止Python回测进程
-        BacktestResult result = this.getById(backtestId);
-        if (result != null && result.getStatus() == 0) {
-            result.setStatus(2); // 设置为失败
-            return this.updateById(result);
+        // 创建回测结果对象
+        BacktestResult result = new BacktestResult();
+        result.setStrategyId(strategyId);
+        result.setStartDate(startDate);
+        result.setEndDate(endDate);
+        result.setInitialCapital(strategy.getInitialCapital());
+        result.setParameters(JSON.toJSONString(parameters));
+        result.setCreateTime(LocalDateTime.now());
+        result.setCreateBy("system");
+
+        try {
+            // 调用Python回测脚本
+            Map<String, Object> backtestData = executePythonBacktest(strategy, startDate, endDate, parameters);
+            
+            // 设置回测结果
+            result.setFinalCapital((BigDecimal) backtestData.get("finalCapital"));
+            result.setTotalReturn((BigDecimal) backtestData.get("totalReturn"));
+            result.setAnnualReturn((BigDecimal) backtestData.get("annualReturn"));
+            result.setMaxDrawdown((BigDecimal) backtestData.get("maxDrawdown"));
+            result.setSharpeRatio((BigDecimal) backtestData.get("sharpeRatio"));
+            result.setWinRate((BigDecimal) backtestData.get("winRate"));
+            result.setTradeCount((Integer) backtestData.get("tradeCount"));
+            result.setResultData(JSON.toJSONString(backtestData.get("dailyReturns")));
+
+            // 保存回测结果
+            backtestResultMapper.insert(result);
+            
+            log.info("回测执行完成，回测ID: {}", result.getId());
+            return result;
+            
+        } catch (Exception e) {
+            log.error("回测执行失败", e);
+            throw new RuntimeException("回测执行失败: " + e.getMessage());
         }
-        return false;
     }
 
     @Override
-    public IPage<BacktestResult> getBacktestResultPage(Integer pageNum, Integer pageSize, Long strategyId, Integer status) {
-        Page<BacktestResult> page = new Page<>(pageNum, pageSize);
-        LambdaQueryWrapper<BacktestResult> wrapper = new LambdaQueryWrapper<>();
-        
-        if (strategyId != null) {
-            wrapper.eq(BacktestResult::getStrategyId, strategyId);
-        }
-        if (status != null) {
-            wrapper.eq(BacktestResult::getStatus, status);
-        }
-        
-        wrapper.orderByDesc(BacktestResult::getCreateTime);
-        return this.page(page, wrapper);
+    public BacktestResult getBacktestResult(Long backtestId) {
+        return backtestResultMapper.selectById(backtestId);
     }
 
     @Override
-    public BacktestResult getBacktestResultDetail(Long backtestId) {
-        return this.getById(backtestId);
-    }
-
-    @Override
-    public Map<String, Object> getBacktestChartData(Long backtestId) {
-        Map<String, Object> chartData = new HashMap<>();
-        
-        // TODO: 从数据库或Python脚本获取详细的图表数据
-        // 这里返回模拟数据
-        chartData.put("equityCurve", new Object[]{}); // 权益曲线数据
-        chartData.put("drawdownCurve", new Object[]{}); // 回撤曲线数据
-        chartData.put("tradeHistory", new Object[]{}); // 交易历史数据
-        
-        return chartData;
+    public List<BacktestResult> getBacktestHistory(Long strategyId) {
+        return backtestResultMapper.selectList(
+            new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<BacktestResult>()
+                .eq(BacktestResult::getStrategyId, strategyId)
+                .orderByDesc(BacktestResult::getCreateTime)
+        );
     }
 
     @Override
     public boolean deleteBacktestResult(Long backtestId) {
-        return this.removeById(backtestId);
+        return backtestResultMapper.deleteById(backtestId) > 0;
+    }
+
+    @Override
+    public Map<String, Object> getBacktestProgress(Long backtestId) {
+        // 这里可以实现回测进度查询逻辑
+        Map<String, Object> progress = new HashMap<>();
+        progress.put("status", "completed");
+        progress.put("progress", 100);
+        return progress;
+    }
+
+    /**
+     * 执行Python回测脚本
+     */
+    private Map<String, Object> executePythonBacktest(Strategy strategy, LocalDateTime startDate, LocalDateTime endDate, Map<String, Object> parameters) {
+        // 这里应该调用Python回测脚本
+        // 暂时返回模拟数据
+        Map<String, Object> result = new HashMap<>();
+        result.put("finalCapital", new BigDecimal("110000"));
+        result.put("totalReturn", new BigDecimal("0.10"));
+        result.put("annualReturn", new BigDecimal("0.12"));
+        result.put("maxDrawdown", new BigDecimal("0.05"));
+        result.put("sharpeRatio", new BigDecimal("1.2"));
+        result.put("winRate", new BigDecimal("0.65"));
+        result.put("tradeCount", 50);
+        
+        // 模拟每日收益数据
+        Map<String, BigDecimal> dailyReturns = new HashMap<>();
+        dailyReturns.put("2024-01-01", new BigDecimal("0.01"));
+        dailyReturns.put("2024-01-02", new BigDecimal("-0.005"));
+        result.put("dailyReturns", dailyReturns);
+        
+        return result;
     }
 } 
