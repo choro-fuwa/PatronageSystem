@@ -176,4 +176,109 @@ public class MonitorController {
             return response;
         }
     }
+
+    /**
+     * 获取监控概览
+     */
+    @GetMapping("/overview")
+    public Map<String, Object> getMonitorOverview() {
+        Map<String, Object> overview = monitorService.getMonitorOverview();
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("code", 200);
+        response.put("message", "查询成功");
+        response.put("data", overview);
+        return response;
+    }
+
+    /**
+     * 获取预警列表
+     */
+    @GetMapping("/alerts")
+    public Map<String, Object> getAlertList(@RequestParam(required = false) Integer pageNum,
+                                           @RequestParam(required = false) Integer pageSize,
+                                           @RequestParam(required = false) Integer status) {
+        Map<String, Object> alerts = monitorService.getAlertList(pageNum, pageSize, status);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("code", 200);
+        response.put("message", "查询成功");
+        response.put("data", alerts);
+        return response;
+    }
+
+    /**
+     * 获取预警历史列表
+     */
+    @GetMapping("/history")
+    public Map<String, Object> getAlertHistoryList(@RequestParam(required = false) Integer pageNum,
+                                                  @RequestParam(required = false) Integer pageSize,
+                                                  @RequestParam(required = false) Integer processStatus) {
+        Map<String, Object> history = monitorService.getAlertHistoryList(pageNum, pageSize, processStatus);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("code", 200);
+        response.put("message", "查询成功");
+        response.put("data", history);
+        return response;
+    }
+
+    /**
+     * 获取性能分析
+     */
+    @GetMapping("/performance")
+    public Map<String, Object> getPerformanceAnalysis(@RequestParam(required = false) String startDate,
+                                                     @RequestParam(required = false) String endDate) {
+        Map<String, Object> analysis = monitorService.getPerformanceAnalysis(startDate, endDate);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("code", 200);
+        response.put("message", "查询成功");
+        response.put("data", analysis);
+        return response;
+    }
+
+    /**
+     * 获取收益归因
+     */
+    @GetMapping("/attribution/{strategyId}")
+    public Map<String, Object> getReturnAttribution(@PathVariable Long strategyId,
+                                                   @RequestParam(required = false) String startDate,
+                                                   @RequestParam(required = false) String endDate) {
+        Map<String, Object> attribution = monitorService.getReturnAttribution(strategyId, startDate, endDate);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("code", 200);
+        response.put("message", "查询成功");
+        response.put("data", attribution);
+        return response;
+    }
+
+    /**
+     * 获取风险归因
+     */
+    @GetMapping("/risk-attribution/{strategyId}")
+    public Map<String, Object> getRiskAttribution(@PathVariable Long strategyId) {
+        Map<String, Object> attribution = monitorService.getRiskAttribution(strategyId);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("code", 200);
+        response.put("message", "查询成功");
+        response.put("data", attribution);
+        return response;
+    }
+
+    /**
+     * 获取监控仪表板数据
+     */
+    @GetMapping("/dashboard")
+    public Map<String, Object> getMonitorDashboardData() {
+        Map<String, Object> dashboardData = monitorService.getMonitorDashboardData();
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("code", 200);
+        response.put("message", "查询成功");
+        response.put("data", dashboardData);
+        return response;
+    }
 } 

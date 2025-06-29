@@ -97,10 +97,6 @@ public class MonitorServiceImpl implements MonitorService {
     public Map<String, Object> getStrategyMonitorData(Long strategyId) {
         Map<String, Object> monitorData = new HashMap<>();
         
-        // 获取策略基本信息
-        // 这里需要注入StrategyService来获取策略信息
-        // Strategy strategy = strategyService.getById(strategyId);
-        
         // 获取预警规则数量
         long alertCount = strategyAlertMapper.selectCount(
             new LambdaQueryWrapper<StrategyAlert>()
@@ -148,6 +144,114 @@ public class MonitorServiceImpl implements MonitorService {
                 log.error("检查预警条件失败，预警ID: {}", alert.getId(), e);
             }
         }
+    }
+
+    @Override
+    public Map<String, Object> getMonitorOverview() {
+        Map<String, Object> overview = new HashMap<>();
+        
+        // 获取总预警数量
+        long totalAlerts = strategyAlertMapper.selectCount(null);
+        
+        // 获取启用预警数量
+        long enabledAlerts = strategyAlertMapper.selectCount(
+            new LambdaQueryWrapper<StrategyAlert>().eq(StrategyAlert::getIsEnabled, 1)
+        );
+        
+        // 获取未处理预警历史数量
+        long unprocessedHistory = alertHistoryMapper.selectCount(
+            new LambdaQueryWrapper<AlertHistory>().eq(AlertHistory::getProcessStatus, 0)
+        );
+        
+        overview.put("totalAlerts", totalAlerts);
+        overview.put("enabledAlerts", enabledAlerts);
+        overview.put("unprocessedHistory", unprocessedHistory);
+        
+        return overview;
+    }
+
+    @Override
+    public Map<String, Object> getAlertList(Integer pageNum, Integer pageSize, Integer status) {
+        Map<String, Object> result = new HashMap<>();
+        
+        LambdaQueryWrapper<StrategyAlert> wrapper = new LambdaQueryWrapper<>();
+        if (status != null) {
+            wrapper.eq(StrategyAlert::getIsEnabled, status);
+        }
+        wrapper.orderByDesc(StrategyAlert::getCreateTime);
+        
+        List<StrategyAlert> alerts = strategyAlertMapper.selectList(wrapper);
+        result.put("list", alerts);
+        result.put("total", alerts.size());
+        
+        return result;
+    }
+
+    @Override
+    public Map<String, Object> getAlertHistoryList(Integer pageNum, Integer pageSize, Integer processStatus) {
+        Map<String, Object> result = new HashMap<>();
+        
+        LambdaQueryWrapper<AlertHistory> wrapper = new LambdaQueryWrapper<>();
+        if (processStatus != null) {
+            wrapper.eq(AlertHistory::getProcessStatus, processStatus);
+        }
+        wrapper.orderByDesc(AlertHistory::getCreateTime);
+        
+        List<AlertHistory> history = alertHistoryMapper.selectList(wrapper);
+        result.put("list", history);
+        result.put("total", history.size());
+        
+        return result;
+    }
+
+    @Override
+    public Map<String, Object> getPerformanceAnalysis(String startDate, String endDate) {
+        Map<String, Object> analysis = new HashMap<>();
+        
+        // 这里实现性能分析逻辑
+        analysis.put("totalReturn", 0.0);
+        analysis.put("maxDrawdown", 0.0);
+        analysis.put("sharpeRatio", 0.0);
+        analysis.put("volatility", 0.0);
+        
+        return analysis;
+    }
+
+    @Override
+    public Map<String, Object> getReturnAttribution(Long strategyId, String startDate, String endDate) {
+        Map<String, Object> attribution = new HashMap<>();
+        
+        // 这里实现收益归因分析逻辑
+        attribution.put("assetAllocation", 0.0);
+        attribution.put("stockSelection", 0.0);
+        attribution.put("interaction", 0.0);
+        
+        return attribution;
+    }
+
+    @Override
+    public Map<String, Object> getRiskAttribution(Long strategyId) {
+        Map<String, Object> attribution = new HashMap<>();
+        
+        // 这里实现风险归因分析逻辑
+        attribution.put("marketRisk", 0.0);
+        attribution.put("specificRisk", 0.0);
+        attribution.put("liquidityRisk", 0.0);
+        
+        return attribution;
+    }
+
+    @Override
+    public Map<String, Object> getMonitorDashboardData() {
+        Map<String, Object> dashboardData = new HashMap<>();
+        
+        // 获取监控仪表板数据
+        dashboardData.put("activeStrategies", 0);
+        dashboardData.put("totalAlerts", 0);
+        dashboardData.put("unprocessedAlerts", 0);
+        dashboardData.put("systemHealth", "normal");
+        
+        return dashboardData;
     }
 
     /**

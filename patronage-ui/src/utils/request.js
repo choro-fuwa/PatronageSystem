@@ -3,7 +3,7 @@ import { ElMessage } from 'element-plus'
 
 // 创建axios实例
 const service = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api',
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json'
@@ -34,6 +34,25 @@ service.interceptors.response.use(
     
     // 如果返回的状态码为200，说明接口请求成功，可以正常拿到数据
     if (response.status === 200) {
+      // 处理后端返回的Result包装格式
+      if (data && typeof data === 'object') {
+        // 如果是Result格式，提取data字段
+        if (data.hasOwnProperty('code') && data.hasOwnProperty('data')) {
+          if (data.code === 200) {
+            return data.data
+          } else {
+            ElMessage.error(data.message || '请求失败')
+            return Promise.reject(new Error(data.message || '请求失败'))
+          }
+        }
+        // 如果是直接的Map格式（如回测和监控接口）
+        if (data.hasOwnProperty('code') && data.code === 200) {
+          return data.data
+        } else if (data.hasOwnProperty('code') && data.code !== 200) {
+          ElMessage.error(data.message || '请求失败')
+          return Promise.reject(new Error(data.message || '请求失败'))
+        }
+      }
       return data
     }
     

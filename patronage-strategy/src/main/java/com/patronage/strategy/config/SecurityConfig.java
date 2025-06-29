@@ -19,10 +19,12 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.disable())
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/api/health/**").permitAll()
+                .requestMatchers("/api/**").permitAll()  // 允许所有API请求
+                .requestMatchers("/health/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v2/api-docs/**", "/swagger-resources/**").permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()  // 允许所有请求
             )
             .formLogin(form -> form.disable())
             .httpBasic(basic -> basic.disable());

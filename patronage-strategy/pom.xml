@@ -102,9 +102,9 @@
 
         <!-- Swagger文档 -->
         <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-boot-starter</artifactId>
-            <version>3.0.0</version>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.1.0</version>
         </dependency>
 
         <!-- 测试依赖 -->
@@ -146,6 +146,7 @@
                 <includes>
                     <include>**/*.properties</include>
                     <include>**/*.xml</include>
+                    <include>**/*.yml</include>
                 </includes>
                 <filtering>true</filtering>
             </resource>
