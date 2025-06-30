@@ -9,7 +9,10 @@ import {
   Warning,
   Document,
   Setting,
-  ArrowDown
+  ArrowDown,
+  View,
+  DataLine,
+  Location
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
@@ -18,13 +21,11 @@ const route = useRoute()
 const breadcrumbs = computed(() => {
   const paths = route.path.split('/').filter(Boolean)
   const result = [{ path: '/', name: '首页' }]
-  
   paths.forEach((path, index) => {
     const fullPath = '/' + paths.slice(0, index + 1).join('/')
     const name = getBreadcrumbName(path)
     result.push({ path: fullPath, name })
   })
-  
   return result
 })
 
@@ -49,6 +50,9 @@ const getBreadcrumbName = (path) => {
     'reports': '报告中心',
     'performance': '绩效报告',
     'attribution': '归因分析',
+    'display': '展示模块',
+    'realtime': '实时数据',
+    'china': '中国地图',
     'settings': '系统设置',
     'profile': '个人设置',
     'system': '系统配置',
@@ -67,7 +71,6 @@ const getBreadcrumbName = (path) => {
           <img src="@/assets/logo.svg" alt="Logo" />
           <span>策略管理系统</span>
         </div>
-        
         <el-menu
           :default-active="$route.path"
           class="sidebar-menu"
@@ -80,7 +83,6 @@ const getBreadcrumbName = (path) => {
             <el-icon><DataBoard /></el-icon>
             <span>仪表盘</span>
           </el-menu-item>
-          
           <el-sub-menu index="/strategy">
             <template #title>
               <el-icon><TrendCharts /></el-icon>
@@ -90,7 +92,6 @@ const getBreadcrumbName = (path) => {
             <el-menu-item index="/strategy/create">创建策略</el-menu-item>
             <el-menu-item index="/strategy/backtest">策略回测</el-menu-item>
           </el-sub-menu>
-          
           <el-sub-menu index="/monitor">
             <template #title>
               <el-icon><Monitor /></el-icon>
@@ -100,7 +101,6 @@ const getBreadcrumbName = (path) => {
             <el-menu-item index="/monitor/alerts">预警管理</el-menu-item>
             <el-menu-item index="/monitor/analysis">绩效分析</el-menu-item>
           </el-sub-menu>
-          
           <el-sub-menu index="/trading">
             <template #title>
               <el-icon><Money /></el-icon>
@@ -110,7 +110,6 @@ const getBreadcrumbName = (path) => {
             <el-menu-item index="/trading/positions">持仓管理</el-menu-item>
             <el-menu-item index="/trading/rebalance">再平衡</el-menu-item>
           </el-sub-menu>
-          
           <el-sub-menu index="/risk">
             <template #title>
               <el-icon><Warning /></el-icon>
@@ -120,7 +119,6 @@ const getBreadcrumbName = (path) => {
             <el-menu-item index="/risk/limits">限额管理</el-menu-item>
             <el-menu-item index="/risk/stress">压力测试</el-menu-item>
           </el-sub-menu>
-          
           <el-sub-menu index="/reports">
             <template #title>
               <el-icon><Document /></el-icon>
@@ -130,7 +128,14 @@ const getBreadcrumbName = (path) => {
             <el-menu-item index="/reports/risk">风险报告</el-menu-item>
             <el-menu-item index="/reports/attribution">归因分析</el-menu-item>
           </el-sub-menu>
-          
+          <el-sub-menu index="/display">
+            <template #title>
+              <el-icon><View /></el-icon>
+              <span>展示模块</span>
+            </template>
+            <el-menu-item index="/display/realtime">实时数据</el-menu-item>
+            <el-menu-item index="/display/china">中国地图</el-menu-item>
+          </el-sub-menu>
           <el-sub-menu index="/settings">
             <template #title>
               <el-icon><Setting /></el-icon>
@@ -142,7 +147,6 @@ const getBreadcrumbName = (path) => {
           </el-sub-menu>
         </el-menu>
       </el-aside>
-      
       <!-- 主内容区域 -->
       <el-container>
         <!-- 顶部导航栏 -->
@@ -154,7 +158,6 @@ const getBreadcrumbName = (path) => {
               </el-breadcrumb-item>
             </el-breadcrumb>
           </div>
-          
           <div class="header-right">
             <el-dropdown>
               <span class="user-info">
@@ -172,7 +175,6 @@ const getBreadcrumbName = (path) => {
             </el-dropdown>
           </div>
         </el-header>
-        
         <!-- 内容区域 -->
         <el-main class="main-content">
           <router-view />
@@ -185,11 +187,9 @@ const getBreadcrumbName = (path) => {
 <style scoped lang="scss">
 .main-container {
   height: 100vh;
-  
   .sidebar {
     background-color: #304156;
     color: #bfcbd9;
-    
     .logo {
       height: 60px;
       display: flex;
@@ -199,33 +199,27 @@ const getBreadcrumbName = (path) => {
       color: #fff;
       font-size: 16px;
       font-weight: bold;
-      
       img {
         width: 32px;
         height: 32px;
         margin-right: 10px;
       }
     }
-    
     .sidebar-menu {
       border: none;
-      
       .el-menu-item, .el-sub-menu__title {
         height: 50px;
         line-height: 50px;
-        
         &:hover {
           background-color: #263445;
         }
       }
-      
       .el-menu-item.is-active {
         background-color: #1890ff;
         color: #fff;
       }
     }
   }
-  
   .header {
     background-color: #fff;
     border-bottom: 1px solid #e6e6e6;
@@ -233,13 +227,11 @@ const getBreadcrumbName = (path) => {
     align-items: center;
     justify-content: space-between;
     padding: 0 20px;
-    
     .header-left {
       .el-breadcrumb {
         font-size: 14px;
       }
     }
-    
     .header-right {
       .user-info {
         display: flex;
@@ -248,15 +240,12 @@ const getBreadcrumbName = (path) => {
         padding: 8px 12px;
         border-radius: 4px;
         transition: background-color 0.3s;
-        
         &:hover {
           background-color: #f5f5f5;
         }
-        
         .el-avatar {
           margin-right: 8px;
         }
-        
         span {
           margin-right: 8px;
           color: #333;
@@ -264,15 +253,12 @@ const getBreadcrumbName = (path) => {
       }
     }
   }
-  
   .main-content {
     background-color: #f0f2f5;
     padding: 20px;
     overflow-y: auto;
   }
 }
-
-// 全局样式
 #app {
   font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

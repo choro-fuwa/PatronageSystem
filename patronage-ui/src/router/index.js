@@ -197,6 +197,35 @@ const router = createRouter({
       ]
     },
     {
+      path: '/display',
+      name: 'Display',
+      redirect: '/display/realtime',
+      meta: {
+        title: '展示模块',
+        icon: 'View'
+      },
+      children: [
+        {
+          path: 'realtime',
+          name: 'DisplayRealtime',
+          component: () => import('@/views/echarts/realTime.vue'),
+          meta: {
+            title: '实时数据',
+            icon: 'DataLine'
+          }
+        },
+        {
+          path: 'china',
+          name: 'DisplayChina',
+          component: () => import('@/views/echarts/china.vue'),
+          meta: {
+            title: '中国地图',
+            icon: 'Location'
+          }
+        }
+      ]
+    },
+    {
       path: '/settings',
       name: 'Settings',
       redirect: '/settings/profile',
