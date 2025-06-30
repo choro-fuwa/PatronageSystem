@@ -1,7 +1,7 @@
 package com.patronage.strategy.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.patronage.strategy.entity.Strategy;
+import src.java.com.patronage.strategy.entity.Strategy;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;

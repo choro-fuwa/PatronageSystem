@@ -1,6 +1,6 @@
 package com.patronage.strategy.service;
 
-import com.patronage.strategy.entity.Strategy;
+import src.java.com.patronage.strategy.entity.Strategy;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
