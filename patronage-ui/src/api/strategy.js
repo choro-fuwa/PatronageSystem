@@ -459,4 +459,24 @@ export const deleteAlert = (alertId) => strategyApi.deleteAlert(alertId)
 export const toggleAlert = (alertId, enabled) => strategyApi.toggleAlert(alertId, enabled)
 export const processAlert = (alertHistoryId, processBy, processRemark) => strategyApi.processAlert(alertHistoryId, processBy, processRemark)
 export const getMonitorDashboardData = () => strategyApi.getMonitorDashboardData()
-export const checkStrategyAlerts = (strategyId) => strategyApi.checkStrategyAlerts(strategyId) 
+export const checkStrategyAlerts = (strategyId) => strategyApi.checkStrategyAlerts(strategyId)
+
+// 监控相关API
+export const monitorApi = {
+  getStrategyMonitorData: strategyApi.getStrategyMonitorData,
+  getStrategyRiskMetrics: strategyApi.getStrategyRiskMetrics,
+  setStrategyAlertRules: strategyApi.setStrategyAlertRules,
+  getMonitorOverview: strategyApi.getMonitorOverview,
+  getAlertList: strategyApi.getAlertList,
+  getAlertHistoryList: strategyApi.getAlertHistoryList,
+  getPerformanceAnalysis: strategyApi.getPerformanceAnalysis,
+  getReturnAttribution: strategyApi.getReturnAttribution,
+  getRiskAttribution: strategyApi.getRiskAttribution,
+  createAlert: strategyApi.createAlert,
+  updateAlert: strategyApi.updateAlert,
+  deleteAlert: strategyApi.deleteAlert,
+  toggleAlert: strategyApi.toggleAlert,
+  processAlert: strategyApi.processAlert,
+  getMonitorDashboardData: strategyApi.getMonitorDashboardData,
+  checkStrategyAlerts: strategyApi.checkStrategyAlerts
+} 

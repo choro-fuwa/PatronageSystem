@@ -139,7 +139,7 @@
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="55" />
-        <el-table-column prop="strategyName" label="策略名称" min-width="150">
+        <el-table-column prop="strategyName" label="策略名称" min-width="50">
           <template #default="{ row }">
             <el-link type="primary" @click="handleView(row)">{{ row.strategyName }}</el-link>
           </template>
@@ -173,37 +173,31 @@
             {{ formatDateTime(row.createTime) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="360" fixed="right">
           <template #default="{ row }">
-            <el-button-group>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
               <el-button size="small" @click="handleView(row)">查看</el-button>
               <el-button size="small" type="primary" @click="handleEdit(row)">编辑</el-button>
+              <el-button size="small" type="danger" @click="handleDelete(row)">删除</el-button>
               <el-button
                 v-if="row.status === 0"
                 size="small"
                 type="success"
                 @click="handleStart(row)"
-              >
-                启动
-              </el-button>
+              >启动</el-button>
               <el-button
                 v-if="row.status === 1"
                 size="small"
                 type="warning"
                 @click="handlePause(row)"
-              >
-                暂停
-              </el-button>
+              >暂停</el-button>
               <el-button
                 v-if="row.status === 1 || row.status === 2"
                 size="small"
-                type="danger"
+                type="text"
                 @click="handleStop(row)"
-              >
-                停止
-              </el-button>
-              <el-button size="small" type="danger" @click="handleDelete(row)">删除</el-button>
-            </el-button-group>
+              >停止</el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -373,8 +367,8 @@ const fetchStrategyList = async () => {
       ...searchForm
     }
     const response = await getStrategyList(params)
-    strategyList.value = response.data.records
-    pagination.total = response.data.total
+    strategyList.value = response.records
+    pagination.total = response.total
   } catch (error) {
     ElMessage.error('获取策略列表失败')
   } finally {

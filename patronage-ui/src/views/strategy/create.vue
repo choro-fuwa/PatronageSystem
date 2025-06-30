@@ -60,13 +60,13 @@
         
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="策略名称" prop="name">
-              <el-input v-model="form.name" placeholder="请输入策略名称" />
+            <el-form-item label="策略名称" prop="strategyName">
+              <el-input v-model="form.strategyName" placeholder="请输入策略名称" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="策略类型" prop="type">
-              <el-select v-model="form.type" placeholder="请选择策略类型" style="width: 100%">
+            <el-form-item label="策略类型" prop="strategyType">
+              <el-select v-model="form.strategyType" placeholder="请选择策略类型" style="width: 100%">
                 <el-option label="大类资产配置" value="ASSET_ALLOCATION" />
                 <el-option label="FOF组合管理" value="FOF" />
                 <el-option label="基金指数组合" value="INDEX_COPY" />
@@ -341,8 +341,8 @@ export default {
     const selectedTemplate = ref(null)
 
     const form = reactive({
-      name: '',
-      type: '',
+      strategyName: '',
+      strategyType: '',
       riskLevel: '',
       initialCapital: 1000000,
       description: '',
@@ -360,7 +360,7 @@ export default {
     })
 
     const rules = {
-      name: [
+      strategyName: [
         { required: true, message: '请输入策略名称', trigger: 'blur' },
         { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
       ],
@@ -384,7 +384,7 @@ export default {
         id: 1,
         name: '稳健股债轮动',
         description: '基于宏观经济周期和估值水平，动态调整股票和债券配置比例的稳健型策略',
-        type: '大类资产配置',
+        strategyType: '大类资产配置',
         riskLevel: 'MEDIUM',
         icon: 'DataAnalysis',
         defaultAssets: [
@@ -396,7 +396,7 @@ export default {
         id: 2,
         name: 'FOF组合管理',
         description: '通过精选优质基金，构建多元化投资组合，实现风险分散和收益优化',
-        type: 'FOF组合',
+        strategyType: 'FOF组合',
         riskLevel: 'MEDIUM',
         icon: 'VideoPlay',
         defaultAssets: [
@@ -409,7 +409,7 @@ export default {
         id: 3,
         name: '基金指数组合',
         description: '跟踪主流指数，通过被动投资方式获取市场平均收益',
-        type: '基金指数组合',
+        strategyType: '基金指数组合',
         riskLevel: 'LOW',
         icon: 'Money',
         defaultAssets: [
@@ -422,7 +422,7 @@ export default {
         id: 4,
         name: '择时组合',
         description: '基于技术分析和市场情绪，进行择时操作，追求超额收益',
-        type: '择时策略',
+        strategyType: '择时策略',
         riskLevel: 'HIGH',
         icon: 'TrendCharts',
         defaultAssets: [
@@ -458,9 +458,9 @@ export default {
       selectedTemplate.value = template.id
       
       // 应用模板配置
-      form.type = template.type === '大类资产配置' ? 'ASSET_ALLOCATION' : 
-                  template.type === 'FOF组合' ? 'FOF' :
-                  template.type === '基金指数组合' ? 'INDEX_COPY' : 'TIMING'
+      form.strategyType = template.type === '大类资产配置' ? 'ASSET_ALLOCATION' : 
+                          template.type === 'FOF组合' ? 'FOF' :
+                          template.type === '基金指数组合' ? 'INDEX_COPY' : 'TIMING'
       form.riskLevel = template.riskLevel
       form.description = template.description
       form.assets = JSON.parse(JSON.stringify(template.defaultAssets))
@@ -501,7 +501,7 @@ export default {
             ElMessage.warning('资产权重总和必须为100%')
             return
           }
-
+          console.log('提交数据', form)
           createStrategy(form).then(response => {
             if (response.code === 200) {
               ElMessage.success('策略创建成功')
