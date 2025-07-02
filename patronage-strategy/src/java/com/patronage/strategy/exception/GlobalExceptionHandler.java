@@ -1,6 +1,6 @@
-package src.java.com.patronage.strategy.exception;
+package com.patronage.strategy.exception;
 
-import src.java.com.patronage.strategy.common.Result;
+import com.patronage.strategy.common.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

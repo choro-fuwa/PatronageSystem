@@ -37,21 +37,8 @@ const chartOptions = reactive({
     text: "中国地图",
     top: "10px",
     left: "center",
-    textStyle: { color: setting.theme.color }
+    textStyle: { color: '#b39ddb' }
   },
-  visualMap: [{
-    min: 0,
-    max: 200,
-    left: 'left',
-    top: 'bottom',
-    text: ['高', '低'],
-    calculable: false,
-    orient: 'horizontal',
-    inRange: {
-      color: [adjustColorOpacity(setting.theme.color, 5), setting.theme.color],
-      symbolSize: [30, 100],
-    },
-  }],
   tooltip: {
     trigger: 'item',
     backgroundColor: 'rgba(0, 0, 0, .6)',
@@ -60,7 +47,9 @@ const chartOptions = reactive({
   series: [{
     type: 'map',
     map: 'china',
-    label: { show: true, color: '#fff', fontSize: 13 },
+    zoom: 1.5,
+    center: [104.0, 35.0],
+    label: { show: true, color: '#b39ddb', fontSize: 13 },
     itemStyle: {
       areaColor: adjustColorOpacity(setting.theme.color, 10),
       borderColor: adjustColorOpacity(setting.theme.color, 80),

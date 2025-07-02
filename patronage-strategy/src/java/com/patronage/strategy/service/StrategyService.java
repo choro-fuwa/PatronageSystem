@@ -1,8 +1,8 @@
-package src.java.com.patronage.strategy.service;
+package com.patronage.strategy.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
-import src.java.com.patronage.strategy.entity.Strategy;
+import com.patronage.strategy.entity.Strategy;
 
 import java.util.List;
 import java.util.Map;

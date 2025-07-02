@@ -1,7 +1,7 @@
-package src.java.com.patronage.strategy.controller;
+package com.patronage.strategy.controller;
 
-import src.java.com.patronage.strategy.common.Result;
-import src.java.com.patronage.strategy.utils.JwtUtils;
+import com.patronage.strategy.common.Result;
+import com.patronage.strategy.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;

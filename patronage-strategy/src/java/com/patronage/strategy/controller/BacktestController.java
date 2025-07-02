@@ -1,7 +1,7 @@
-package src.java.com.patronage.strategy.controller;
+package com.patronage.strategy.controller;
 
-import src.java.com.patronage.strategy.entity.BacktestResult;
-import src.java.com.patronage.strategy.service.BacktestEngine;
+import com.patronage.strategy.entity.BacktestResult;
+import com.patronage.strategy.service.BacktestEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

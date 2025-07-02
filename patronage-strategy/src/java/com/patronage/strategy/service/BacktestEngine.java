@@ -1,6 +1,6 @@
-package src.java.com.patronage.strategy.service;
+package com.patronage.strategy.service;
 
-import src.java.com.patronage.strategy.entity.BacktestResult;
+import com.patronage.strategy.entity.BacktestResult;
 
 import java.time.LocalDateTime;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package src.java.com.patronage.strategy.exception;
+package com.patronage.strategy.exception;
 
 /**
  * 业务异常类

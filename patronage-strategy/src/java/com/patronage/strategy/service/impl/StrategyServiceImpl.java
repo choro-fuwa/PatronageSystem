@@ -1,12 +1,12 @@
-package src.java.com.patronage.strategy.service.impl;
+package com.patronage.strategy.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import src.java.com.patronage.strategy.entity.Strategy;
-import src.java.com.patronage.strategy.mapper.StrategyMapper;
-import src.java.com.patronage.strategy.service.StrategyService;
+import com.patronage.strategy.entity.Strategy;
+import com.patronage.strategy.mapper.StrategyMapper;
+import com.patronage.strategy.service.StrategyService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 

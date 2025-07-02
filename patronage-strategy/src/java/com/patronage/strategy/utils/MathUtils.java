@@ -1,4 +1,4 @@
-package src.java.com.patronage.strategy.utils;
+package com.patronage.strategy.utils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

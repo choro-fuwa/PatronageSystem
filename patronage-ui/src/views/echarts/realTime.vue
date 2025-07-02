@@ -10,7 +10,7 @@
       <div v-else>地图数据加载中...</div>
     </div>
     <div class="rank-area">
-      <div class="rank-title">2025年度访问排行</div>
+      <div class="rank-title">实时访问统计（1小时统计一次）</div>
       <div class="rank-unit">单位：次</div>
       <div v-for="(item, idx) in barData" :key="item.name" class="rank-row">
         <span :class="['rank-num', idx < 3 ? 'top' : '']">{{ idx + 1 }}</span>
@@ -232,6 +232,19 @@ onMounted(async () => {
 .rank-area {
   width: 320px;
   margin-left: 16px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+@media (max-width: 900px) {
+  .main-section {
+    flex-direction: column;
+  }
+  .rank-area {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 20px;
+  }
 }
 .rank-title {
   font-size: 18px;

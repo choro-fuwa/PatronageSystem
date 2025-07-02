@@ -1,4 +1,4 @@
-package src.java.com.patronage.strategy.service;
+package com.patronage.strategy.service;
 
 /**
  * 定时任务服务接口

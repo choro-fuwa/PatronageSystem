@@ -1,6 +1,6 @@
-package src.java.com.patronage.strategy.config;
+package com.patronage.strategy.config;
 
-import src.java.com.patronage.strategy.interceptor.PermissionInterceptor;
+import com.patronage.strategy.interceptor.PermissionInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;

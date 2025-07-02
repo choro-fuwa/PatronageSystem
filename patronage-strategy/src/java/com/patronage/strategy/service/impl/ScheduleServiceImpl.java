@@ -1,13 +1,13 @@
-package src.java.com.patronage.strategy.service.impl;
+package com.patronage.strategy.service.impl;
 
-import src.java.com.patronage.strategy.service.MonitorService;
-import src.java.com.patronage.strategy.service.ScheduleService;
-import src.java.com.patronage.strategy.service.StrategyService;
+import com.patronage.strategy.service.MonitorService;
+import com.patronage.strategy.service.ScheduleService;
+import com.patronage.strategy.service.StrategyService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import src.java.com.patronage.strategy.entity.Strategy;
+import com.patronage.strategy.entity.Strategy;
 
 import java.util.List;
 

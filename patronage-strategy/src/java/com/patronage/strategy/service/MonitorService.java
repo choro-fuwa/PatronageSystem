@@ -1,7 +1,7 @@
-package src.java.com.patronage.strategy.service;
+package com.patronage.strategy.service;
 
-import src.java.com.patronage.strategy.entity.AlertHistory;
-import src.java.com.patronage.strategy.entity.StrategyAlert;
+import com.patronage.strategy.entity.AlertHistory;
+import com.patronage.strategy.entity.StrategyAlert;
 
 import java.util.List;
 import java.util.Map;

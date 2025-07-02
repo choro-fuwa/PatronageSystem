@@ -1,4 +1,4 @@
-package src.java.com.patronage.strategy.config;
+package com.patronage.strategy.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;

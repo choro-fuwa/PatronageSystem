@@ -1,4 +1,4 @@
-package src.java.com.patronage.strategy.annotation;
+package com.patronage.strategy.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

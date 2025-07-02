@@ -1,9 +1,9 @@
-package src.java.com.patronage.strategy.controller;
+package com.patronage.strategy.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import src.java.com.patronage.strategy.common.Result;
-import src.java.com.patronage.strategy.entity.Strategy;
-import src.java.com.patronage.strategy.service.StrategyService;
+import com.patronage.strategy.common.Result;
+import com.patronage.strategy.entity.Strategy;
+import com.patronage.strategy.service.StrategyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,4 +1,4 @@
-package src.java.com.patronage.strategy.config;
+package com.patronage.strategy.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;

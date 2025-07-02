@@ -1,4 +1,4 @@
-package src.java.com.patronage.strategy.entity;
+package com.patronage.strategy.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;

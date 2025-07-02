@@ -1,4 +1,4 @@
-package src.java.com.patronage.strategy.common;
+package com.patronage.strategy.common;
 
 /**
  * 系统常量类

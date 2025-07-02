@@ -273,6 +273,11 @@ const router = createRouter({
       }
     },
     {
+      path: '/query',
+      name: 'RiskQuery',
+      component: () => import('@/views/query/index.vue')
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
       component: () => import('@/views/error/404.vue'),

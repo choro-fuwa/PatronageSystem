@@ -5,6 +5,9 @@
       <div class="welcome-content">
         <h1>欢迎使用策略管理系统</h1>
         <p>今天是 {{ currentDate }}，祝您投资顺利！</p>
+        <el-button type="warning" @click="goToRiskQuery" style="margin-top: 16px;">
+          投资者风险承受能力评测
+        </el-button>
       </div>
       <div class="weather-info">
         <el-icon><Sunny /></el-icon>
@@ -211,6 +214,10 @@ const returnChartRef = ref(null)
 const strategyChartRef = ref(null)
 let returnChart = null
 let strategyChart = null
+
+function goToRiskQuery() {
+  router.push('/query')
+}
 
 // 当前日期
 const currentDate = ref(new Date().toLocaleDateString('zh-CN', {

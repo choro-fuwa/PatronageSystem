@@ -1,7 +1,7 @@
-package src.java.com.patronage.strategy.mapper;
+package com.patronage.strategy.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import src.java.com.patronage.strategy.entity.BacktestResult;
+import com.patronage.strategy.entity.BacktestResult;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

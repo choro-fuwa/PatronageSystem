@@ -1,4 +1,4 @@
-package src.java.com.patronage.strategy.utils;
+package com.patronage.strategy.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

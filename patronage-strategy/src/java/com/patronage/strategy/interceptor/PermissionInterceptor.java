@@ -1,6 +1,6 @@
-package src.java.com.patronage.strategy.interceptor;
+package com.patronage.strategy.interceptor;
 
-import src.java.com.patronage.strategy.annotation.RequiresPermission;
+import com.patronage.strategy.annotation.RequiresPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;

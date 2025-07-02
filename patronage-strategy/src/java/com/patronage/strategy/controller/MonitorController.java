@@ -1,8 +1,8 @@
-package src.java.com.patronage.strategy.controller;
+package com.patronage.strategy.controller;
 
-import src.java.com.patronage.strategy.entity.AlertHistory;
-import src.java.com.patronage.strategy.entity.StrategyAlert;
-import src.java.com.patronage.strategy.service.MonitorService;
+import com.patronage.strategy.entity.AlertHistory;
+import com.patronage.strategy.entity.StrategyAlert;
+import com.patronage.strategy.service.MonitorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
