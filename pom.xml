@@ -382,6 +382,7 @@
         <!--        <module>patronage-research</module>    &lt;!&ndash; 基金研究 &ndash;&gt;-->
         <!--        <module>patronage-factors</module>     &lt;!&ndash; 因子管理 &ndash;&gt;-->
         <module>patronage-strategy</module>    <!-- 策略管理 -->
+        <module>patronage-trading</module>    <!-- 交易管理 -->
         <!--        <module>patronage-trading</module>     &lt;!&ndash; 交易管理 &ndash;&gt;-->
         <!--        <module>patronage-products</module>    &lt;!&ndash; 新增组合产品管理 &ndash;&gt;-->
         <!--        <module>patronage-common</module>      &lt;!&ndash; 通用工具 &ndash;&gt;-->
