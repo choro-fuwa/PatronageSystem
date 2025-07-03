@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ws连接测试</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/2.1.4/jquery.js"></script>
+</head>
+<body>
+<h1>ws连接测试</h1>
+<h2>在线人数：<span id="online"></span></h2>
+
+<script>
+
+
+    /**
+     * WebSocket客户端
+     *
+     * 使用说明：
+     * 1、WebSocket客户端通过回调函数来接收服务端消息。例如：webSocket.onmessage
+     * 2、WebSocket客户端通过send方法来发送消息给服务端。例如：webSocket.send();
+     */
+    function getWebSocket() {
+        /**
+         * 配置 WebSocket
+         * WebSocket客户端 PS：URL开头表示WebSocket协议 中间是域名端口 结尾是服务端映射地址
+         */
+        var webSocket = new WebSocket('ws://localhost:8080/websocket');
+        /**
+         * 当服务端打开连接
+         */
+        webSocket.onopen = function (event) {
+            console.log('WebSocket打开连接');
+        };
+
+        /**
+         * 当服务端发来消息：1.广播消息 2.更新在线人数
+         */
+        webSocket.onmessage = function (event) {
+            console.log('WebSocket收到消息：%c' + event.data, 'color:green');
+
+        };
+
+        /**
+         * 关闭连接
+         */
+        webSocket.onclose = function (event) {
+            console.log('WebSocket关闭连接');
+        };
+
+        /**
+         * 通信失败
+         */
+        webSocket.onerror = function (event) {
+            console.log('WebSocket发生异常');
+
+        };
+        return webSocket;
+    }
+
+    var webSocket = getWebSocket();
+
+</script>
+</body>
+</html>
