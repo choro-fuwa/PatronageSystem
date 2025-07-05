@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.advisorboot.mapper.PortfolioProductMapper">
+
+    <resultMap id="BaseResultMap" type="com.advisorboot.entity.PortfolioProduct">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="product_code" property="productCode" jdbcType="VARCHAR"/>
+        <result column="product_name" property="productName" jdbcType="VARCHAR"/>
+        <result column="product_short_name" property="productShortName" jdbcType="VARCHAR"/>
+        <result column="product_type" property="productType" jdbcType="VARCHAR"/>
+        <result column="risk_level" property="riskLevel" jdbcType="VARCHAR"/>
+        <result column="target_return" property="targetReturn" jdbcType="DECIMAL"/>
+        <result column="min_investment" property="minInvestment" jdbcType="DECIMAL"/>
+        <result column="max_investment" property="maxInvestment" jdbcType="DECIMAL"/>
+        <result column="management_fee" property="managementFee" jdbcType="DECIMAL"/>
+        <result column="custodian_fee" property="custodianFee" jdbcType="DECIMAL"/>
+        <result column="subscription_fee" property="subscriptionFee" jdbcType="DECIMAL"/>
+        <result column="redemption_fee" property="redemptionFee" jdbcType="DECIMAL"/>
+        <result column="benchmark" property="benchmark" jdbcType="VARCHAR"/>
+        <result column="investment_strategy" property="investmentStrategy" jdbcType="VARCHAR"/>
+        <result column="investment_scope" property="investmentScope" jdbcType="VARCHAR"/>
+        <result column="product_status" property="productStatus" jdbcType="VARCHAR"/>
+        <result column="launch_date" property="launchDate" jdbcType="DATE"/>
+        <result column="maturity_date" property="maturityDate" jdbcType="DATE"/>
+        <result column="creator_id" property="creatorId" jdbcType="BIGINT"/>
+        <result column="reviewer_id" property="reviewerId" jdbcType="BIGINT"/>
+        <result column="review_time" property="reviewTime" jdbcType="TIMESTAMP"/>
+        <result column="review_status" property="reviewStatus" jdbcType="VARCHAR"/>
+        <result column="review_comment" property="reviewComment" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, product_code, product_name, product_short_name, product_type, risk_level, target_return,
+        min_investment, max_investment, management_fee, custodian_fee, subscription_fee, redemption_fee,
+        benchmark, investment_strategy, investment_scope, product_status, launch_date, maturity_date,
+        creator_id, reviewer_id, review_time, review_status, review_comment, create_time, update_time
+    </sql>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM portfolio_product
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM portfolio_product
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByProductCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM portfolio_product
+        WHERE product_code = #{productCode}
+    </select>
+
+    <select id="selectByStatus" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM portfolio_product
+        WHERE product_status = #{productStatus}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByProductType" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM portfolio_product
+        WHERE product_type = #{productType}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByRiskLevel" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM portfolio_product
+        WHERE risk_level = #{riskLevel}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByCreator" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM portfolio_product
+        WHERE creator_id = #{creatorId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="searchProducts" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM portfolio_product
+        WHERE product_name LIKE CONCAT('%', #{keyword}, '%')
+           OR product_code LIKE CONCAT('%', #{keyword}, '%')
+           OR product_short_name LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY create_time DESC
+    </select>
+
+    <insert id="insert" parameterType="com.advisorboot.entity.PortfolioProduct" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO portfolio_product (
+            product_code, product_name, product_short_name, product_type, risk_level, target_return,
+            min_investment, max_investment, management_fee, custodian_fee, subscription_fee, redemption_fee,
+            benchmark, investment_strategy, investment_scope, product_status, launch_date, maturity_date,
+            creator_id, reviewer_id, review_time, review_status, review_comment
+        ) VALUES (
+            #{productCode}, #{productName}, #{productShortName}, #{productType}, #{riskLevel}, #{targetReturn},
+            #{minInvestment}, #{maxInvestment}, #{managementFee}, #{custodianFee}, #{subscriptionFee}, #{redemptionFee},
+            #{benchmark}, #{investmentStrategy}, #{investmentScope}, #{productStatus}, #{launchDate}, #{maturityDate},
+            #{creatorId}, #{reviewerId}, #{reviewTime}, #{reviewStatus}, #{reviewComment}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.advisorboot.entity.PortfolioProduct">
+        UPDATE portfolio_product
+        SET product_code = #{productCode},
+            product_name = #{productName},
+            product_short_name = #{productShortName},
+            product_type = #{productType},
+            risk_level = #{riskLevel},
+            target_return = #{targetReturn},
+            min_investment = #{minInvestment},
+            max_investment = #{maxInvestment},
+            management_fee = #{managementFee},
+            custodian_fee = #{custodianFee},
+            subscription_fee = #{subscriptionFee},
+            redemption_fee = #{redemptionFee},
+            benchmark = #{benchmark},
+            investment_strategy = #{investmentStrategy},
+            investment_scope = #{investmentScope},
+            product_status = #{productStatus},
+            launch_date = #{launchDate},
+            maturity_date = #{maturityDate},
+            creator_id = #{creatorId},
+            reviewer_id = #{reviewerId},
+            review_time = #{reviewTime},
+            review_status = #{reviewStatus},
+            review_comment = #{reviewComment},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM portfolio_product WHERE id = #{id}
+    </delete>
+
+    <update id="updateStatus">
+        UPDATE portfolio_product
+        SET product_status = #{productStatus},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateReviewStatus">
+        UPDATE portfolio_product
+        SET review_status = #{reviewStatus},
+            reviewer_id = #{reviewerId},
+            review_time = NOW(),
+            review_comment = #{reviewComment},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+</mapper> 
