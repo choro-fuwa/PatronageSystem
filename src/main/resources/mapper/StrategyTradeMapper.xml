@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.PatronageSystem.mapper.StrategyTradeMapper">
+
+    <resultMap id="BaseResultMap" type="com.PatronageSystem.entity.StrategyTrade">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="strategy_id" property="strategyId" jdbcType="BIGINT"/>
+        <result column="fund_id" property="fundId" jdbcType="BIGINT"/>
+        <result column="trade_date" property="tradeDate" jdbcType="DATE"/>
+        <result column="trade_type" property="tradeType" jdbcType="VARCHAR"/>
+        <result column="trade_amount" property="tradeAmount" jdbcType="DECIMAL"/>
+        <result column="trade_shares" property="tradeShares" jdbcType="DECIMAL"/>
+        <result column="trade_price" property="tradePrice" jdbcType="DECIMAL"/>
+        <result column="trade_value" property="tradeValue" jdbcType="DECIMAL"/>
+        <result column="commission" property="commission" jdbcType="DECIMAL"/>
+        <result column="net_amount" property="netAmount" jdbcType="DECIMAL"/>
+        <result column="trade_reason" property="tradeReason" jdbcType="VARCHAR"/>
+        <result column="trade_status" property="tradeStatus" jdbcType="VARCHAR"/>
+        <result column="execution_time" property="executionTime" jdbcType="TIMESTAMP"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, strategy_id, fund_id, trade_date, trade_type, trade_amount, trade_shares, trade_price,
+        trade_value, commission, net_amount, trade_reason, trade_status, execution_time, create_time, update_time
+    </sql>
+
+    <select id="selectByStrategyId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM strategy_trade
+        WHERE strategy_id = #{strategyId}
+        ORDER BY trade_date DESC, execution_time DESC
+    </select>
+
+    <select id="selectByStrategyIdAndDateRange" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM strategy_trade
+        WHERE strategy_id = #{strategyId}
+          AND trade_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY trade_date DESC, execution_time DESC
+    </select>
+
+    <select id="selectByStrategyIdAndFundId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM strategy_trade
+        WHERE strategy_id = #{strategyId}
+          AND fund_id = #{fundId}
+        ORDER BY trade_date DESC, execution_time DESC
+    </select>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM strategy_trade
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.PatronageSystem.entity.StrategyTrade" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO strategy_trade (
+            strategy_id, fund_id, trade_date, trade_type, trade_amount, trade_shares, trade_price,
+            trade_value, commission, net_amount, trade_reason, trade_status, execution_time
+        ) VALUES (
+            #{strategyId}, #{fundId}, #{tradeDate}, #{tradeType}, #{tradeAmount}, #{tradeShares}, #{tradePrice},
+            #{tradeValue}, #{commission}, #{netAmount}, #{tradeReason}, #{tradeStatus}, #{executionTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.PatronageSystem.entity.StrategyTrade">
+        UPDATE strategy_trade
+        SET strategy_id = #{strategyId},
+            fund_id = #{fundId},
+            trade_date = #{tradeDate},
+            trade_type = #{tradeType},
+            trade_amount = #{tradeAmount},
+            trade_shares = #{tradeShares},
+            trade_price = #{tradePrice},
+            trade_value = #{tradeValue},
+            commission = #{commission},
+            net_amount = #{netAmount},
+            trade_reason = #{tradeReason},
+            trade_status = #{tradeStatus},
+            execution_time = #{executionTime},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM strategy_trade WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByStrategyId" parameterType="java.lang.Long">
+        DELETE FROM strategy_trade WHERE strategy_id = #{strategyId}
+    </delete>
+
+</mapper> 

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.PatronageSystem.Patronage.mapper.TradeOrderMapper">
+
+    <resultMap id="BaseResultMap" type="com.PatronageSystem.Patronage.entity.TradeOrder">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="order_code" property="orderCode" jdbcType="VARCHAR"/>
+        <result column="account_id" property="accountId" jdbcType="BIGINT"/>
+        <result column="strategy_id" property="strategyId" jdbcType="BIGINT"/>
+        <result column="fund_id" property="fundId" jdbcType="BIGINT"/>
+        <result column="order_type" property="orderType" jdbcType="VARCHAR"/>
+        <result column="order_status" property="orderStatus" jdbcType="VARCHAR"/>
+        <result column="order_biz_type" property="orderBizType" jdbcType="VARCHAR"/>
+        <result column="order_price" property="orderPrice" jdbcType="DECIMAL"/>
+        <result column="order_quantity" property="orderQuantity" jdbcType="DECIMAL"/>
+        <result column="filled_quantity" property="filledQuantity" jdbcType="DECIMAL"/>
+        <result column="filled_amount" property="filledAmount" jdbcType="DECIMAL"/>
+        <result column="avg_fill_price" property="avgFillPrice" jdbcType="DECIMAL"/>
+        <result column="commission" property="commission" jdbcType="DECIMAL"/>
+        <result column="order_time" property="orderTime" jdbcType="TIMESTAMP"/>
+        <result column="expire_time" property="expireTime" jdbcType="TIMESTAMP"/>
+        <result column="cancel_time" property="cancelTime" jdbcType="TIMESTAMP"/>
+        <result column="cancel_reason" property="cancelReason" jdbcType="VARCHAR"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, order_code, account_id, strategy_id, fund_id, order_type, order_status, order_biz_type,
+        order_price, order_quantity, filled_quantity, filled_amount, avg_fill_price, commission,
+        order_time, expire_time, cancel_time, cancel_reason, remark, create_time, update_time
+    </sql>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM trade_order
+        ORDER BY order_time DESC
+    </select>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM trade_order
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByOrderCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM trade_order
+        WHERE order_code = #{orderCode}
+    </select>
+
+    <select id="selectByAccountId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM trade_order
+        WHERE account_id = #{accountId}
+        ORDER BY order_time DESC
+    </select>
+
+    <select id="selectByStrategyId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM trade_order
+        WHERE strategy_id = #{strategyId}
+        ORDER BY order_time DESC
+    </select>
+
+    <select id="selectByStatus" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM trade_order
+        WHERE order_status = #{orderStatus}
+        ORDER BY order_time DESC
+    </select>
+
+    <select id="selectByBizType" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM trade_order
+        WHERE order_biz_type = #{orderBizType}
+        ORDER BY order_time DESC
+    </select>
+
+    <select id="selectByTimeRange" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM trade_order
+        WHERE order_time BETWEEN #{startTime} AND #{endTime}
+        ORDER BY order_time DESC
+    </select>
+
+    <select id="searchOrders" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM trade_order
+        WHERE 1=1
+        <if test="orderStatus != null and orderStatus != ''">
+            AND order_status = #{orderStatus}
+        </if>
+        <if test="orderType != null and orderType != ''">
+            AND order_type = #{orderType}
+        </if>
+        <if test="orderBizType != null and orderBizType != ''">
+            AND order_biz_type = #{orderBizType}
+        </if>
+        <if test="accountId != null">
+            AND account_id = #{accountId}
+        </if>
+        <if test="startTime != null and startTime != ''">
+            AND order_time &gt;= #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            AND order_time &lt;= #{endTime}
+        </if>
+        ORDER BY order_time DESC
+    </select>
+
+    <insert id="insert" parameterType="com.PatronageSystem.Patronage.entity.TradeOrder" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO trade_order (
+            order_code, account_id, strategy_id, fund_id, order_type, order_status, order_biz_type,
+            order_price, order_quantity, filled_quantity, filled_amount, avg_fill_price, commission,
+            order_time, expire_time, cancel_time, cancel_reason, remark
+        ) VALUES (
+            #{orderCode}, #{accountId}, #{strategyId}, #{fundId}, #{orderType}, #{orderStatus}, #{orderBizType},
+            #{orderPrice}, #{orderQuantity}, #{filledQuantity}, #{filledAmount}, #{avgFillPrice}, #{commission},
+            #{orderTime}, #{expireTime}, #{cancelTime}, #{cancelReason}, #{remark}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.PatronageSystem.Patronage.entity.TradeOrder">
+        UPDATE trade_order
+        SET order_status = #{orderStatus},
+            order_biz_type = #{orderBizType},
+            filled_quantity = #{filledQuantity},
+            filled_amount = #{filledAmount},
+            avg_fill_price = #{avgFillPrice},
+            commission = #{commission},
+            expire_time = #{expireTime},
+            cancel_time = #{cancelTime},
+            cancel_reason = #{cancelReason},
+            remark = #{remark},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM trade_order WHERE id = #{id}
+    </delete>
+
+    <update id="updateOrderStatus">
+        UPDATE trade_order
+        SET order_status = #{orderStatus},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="executeOrder">
+        UPDATE trade_order
+        SET order_status = #{orderStatus},
+            update_time = NOW()
+        WHERE id = #{id} AND order_status = 'PENDING'
+    </update>
+
+    <update id="cancelOrder">
+        UPDATE trade_order
+        SET order_status = #{orderStatus},
+            cancel_time = NOW(),
+            cancel_reason = #{cancelReason},
+            update_time = NOW()
+        WHERE id = #{id} AND order_status IN ('PENDING', 'EXECUTING')
+    </update>
+
+</mapper>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.PatronageSystem.Patronage.mapper.RiskControlMapper">
+
+    <resultMap id="BaseResultMap" type="com.PatronageSystem.Patronage.entity.RiskControl">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="account_id" property="accountId" jdbcType="BIGINT"/>
+        <result column="risk_type" property="riskType" jdbcType="VARCHAR"/>
+        <result column="risk_value" property="riskValue" jdbcType="DECIMAL"/>
+        <result column="current_value" property="currentValue" jdbcType="DECIMAL"/>
+        <result column="is_active" property="isActive" jdbcType="INTEGER"/>
+        <result column="alert_threshold" property="alertThreshold" jdbcType="DECIMAL"/>
+        <result column="stop_threshold" property="stopThreshold" jdbcType="DECIMAL"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, account_id, risk_type, risk_value, current_value, is_active, alert_threshold, stop_threshold,
+        description, create_time, update_time
+    </sql>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM risk_control
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM risk_control
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByAccountId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM risk_control
+        WHERE account_id = #{accountId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByAccountAndType" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM risk_control
+        WHERE account_id = #{accountId} AND risk_type = #{riskType}
+    </select>
+
+    <select id="selectByRiskType" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM risk_control
+        WHERE risk_type = #{riskType}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectActive" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM risk_control
+        WHERE is_active = 1
+        ORDER BY create_time DESC
+    </select>
+
+    <insert id="insert" parameterType="com.PatronageSystem.Patronage.entity.RiskControl" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO risk_control (
+            account_id, risk_type, risk_value, current_value, is_active, alert_threshold, stop_threshold, description
+        ) VALUES (
+            #{accountId}, #{riskType}, #{riskValue}, #{currentValue}, #{isActive}, #{alertThreshold}, #{stopThreshold}, #{description}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.PatronageSystem.Patronage.entity.RiskControl">
+        UPDATE risk_control
+        SET risk_value = #{riskValue},
+            current_value = #{currentValue},
+            is_active = #{isActive},
+            alert_threshold = #{alertThreshold},
+            stop_threshold = #{stopThreshold},
+            description = #{description},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM risk_control WHERE id = #{id}
+    </delete>
+
+    <update id="updateCurrentValue">
+        UPDATE risk_control
+        SET current_value = #{currentValue},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+</mapper>

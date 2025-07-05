@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.PatronageSystem.Patronage.mapper.TradeStatisticsMapper">
+
+    <resultMap id="BaseResultMap" type="com.PatronageSystem.Patronage.entity.TradeStatistics">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="account_id" property="accountId" jdbcType="BIGINT"/>
+        <result column="stat_date" property="statDate" jdbcType="DATE"/>
+        <result column="total_trades" property="totalTrades" jdbcType="INTEGER"/>
+        <result column="buy_trades" property="buyTrades" jdbcType="INTEGER"/>
+        <result column="sell_trades" property="sellTrades" jdbcType="INTEGER"/>
+        <result column="total_volume" property="totalVolume" jdbcType="DECIMAL"/>
+        <result column="total_amount" property="totalAmount" jdbcType="DECIMAL"/>
+        <result column="total_commission" property="totalCommission" jdbcType="DECIMAL"/>
+        <result column="realized_pnl" property="realizedPnl" jdbcType="DECIMAL"/>
+        <result column="turnover_rate" property="turnoverRate" jdbcType="DECIMAL"/>
+        <result column="win_rate" property="winRate" jdbcType="DECIMAL"/>
+        <result column="avg_hold_days" property="avgHoldDays" jdbcType="DECIMAL"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, account_id, stat_date, total_trades, buy_trades, sell_trades, total_volume, total_amount,
+        total_commission, realized_pnl, turnover_rate, win_rate, avg_hold_days, create_time, update_time
+    </sql>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM trade_statistics
+        ORDER BY stat_date DESC
+    </select>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM trade_statistics
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByAccountId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM trade_statistics
+        WHERE account_id = #{accountId}
+        ORDER BY stat_date DESC
+    </select>
+
+    <select id="selectByAccountAndDate" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM trade_statistics
+        WHERE account_id = #{accountId} AND stat_date = #{statDate}
+    </select>
+
+    <select id="selectByDateRange" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM trade_statistics
+        WHERE stat_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY stat_date DESC
+    </select>
+
+    <insert id="insert" parameterType="com.PatronageSystem.Patronage.entity.TradeStatistics" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO trade_statistics (
+            account_id, stat_date, total_trades, buy_trades, sell_trades, total_volume, total_amount,
+            total_commission, realized_pnl, turnover_rate, win_rate, avg_hold_days
+        ) VALUES (
+            #{accountId}, #{statDate}, #{totalTrades}, #{buyTrades}, #{sellTrades}, #{totalVolume}, #{totalAmount},
+            #{totalCommission}, #{realizedPnl}, #{turnoverRate}, #{winRate}, #{avgHoldDays}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.PatronageSystem.Patronage.entity.TradeStatistics">
+        UPDATE trade_statistics
+        SET total_trades = #{totalTrades},
+            buy_trades = #{buyTrades},
+            sell_trades = #{sellTrades},
+            total_volume = #{totalVolume},
+            total_amount = #{totalAmount},
+            total_commission = #{totalCommission},
+            realized_pnl = #{realizedPnl},
+            turnover_rate = #{turnoverRate},
+            win_rate = #{winRate},
+            avg_hold_days = #{avgHoldDays},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM trade_statistics WHERE id = #{id}
+    </delete>
+
+</mapper>

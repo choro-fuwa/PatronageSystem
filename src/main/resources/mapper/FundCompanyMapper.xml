@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.PatronageSystem.mapper.FundCompanyMapper">
+    
+    <resultMap id="BaseResultMap" type="com.PatronageSystem.entity.FundCompany">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="company_code" property="companyCode" jdbcType="VARCHAR"/>
+        <result column="company_name" property="companyName" jdbcType="VARCHAR"/>
+        <result column="company_short_name" property="companyShortName" jdbcType="VARCHAR"/>
+        <result column="establish_date" property="establishDate" jdbcType="DATE"/>
+        <result column="registered_capital" property="registeredCapital" jdbcType="DECIMAL"/>
+        <result column="legal_representative" property="legalRepresentative" jdbcType="VARCHAR"/>
+        <result column="company_type" property="companyType" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, company_code, company_name, company_short_name, establish_date, registered_capital,
+        legal_representative, company_type, status, create_time, update_time
+    </sql>
+    
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM fund_company
+        WHERE status = 1
+        ORDER BY create_time DESC
+    </select>
+    
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM fund_company
+        WHERE id = #{id} AND status = 1
+    </select>
+    
+    <select id="findByCode" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM fund_company
+        WHERE company_code = #{companyCode} AND status = 1
+    </select>
+    
+    <select id="search" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM fund_company
+        WHERE status = 1
+        <if test="keyword != null and keyword != ''">
+            AND (company_code LIKE CONCAT('%', #{keyword}, '%')
+            OR company_name LIKE CONCAT('%', #{keyword}, '%')
+            OR company_short_name LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY create_time DESC
+    </select>
+    
+</mapper> 

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.PatronageSystem.mapper.FactorCategoryMapper">
+
+    <resultMap id="BaseResultMap" type="com.PatronageSystem.entity.FactorCategory">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="category_name" property="categoryName" jdbcType="VARCHAR"/>
+        <result column="category_code" property="categoryCode" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="parent_id" property="parentId" jdbcType="BIGINT"/>
+        <result column="sort_order" property="sortOrder" jdbcType="INTEGER"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, category_name, category_code, description, parent_id, sort_order, status, create_time, update_time
+    </sql>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor_category
+        WHERE status = 1
+        ORDER BY sort_order ASC, create_time ASC
+    </select>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor_category
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByParentId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor_category
+        WHERE parent_id = #{parentId} AND status = 1
+        ORDER BY sort_order ASC, create_time ASC
+    </select>
+
+    <select id="selectByStatus" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor_category
+        WHERE status = #{status}
+        ORDER BY sort_order ASC, create_time ASC
+    </select>
+
+    <insert id="insert" parameterType="com.PatronageSystem.entity.FactorCategory" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO factor_category (
+            category_name, category_code, description, parent_id, sort_order, status, create_time, update_time
+        ) VALUES (
+            #{categoryName}, #{categoryCode}, #{description}, #{parentId}, #{sortOrder}, #{status}, NOW(), NOW()
+        )
+    </insert>
+
+    <update id="update" parameterType="com.PatronageSystem.entity.FactorCategory">
+        UPDATE factor_category
+        SET category_name = #{categoryName},
+            category_code = #{categoryCode},
+            description = #{description},
+            parent_id = #{parentId},
+            sort_order = #{sortOrder},
+            status = #{status},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM factor_category WHERE id = #{id}
+    </delete>
+
+    <!-- 统计查询 -->
+    <select id="selectCategoryStats" resultType="java.util.Map">
+        SELECT 
+            COUNT(*) as total_count,
+            COUNT(CASE WHEN status = 1 THEN 1 END) as active_count,
+            COUNT(CASE WHEN parent_id = 0 THEN 1 END) as root_count,
+            COUNT(CASE WHEN parent_id > 0 THEN 1 END) as child_count
+        FROM factor_category
+    </select>
+
+    <!-- 获取所有子分类 -->
+    <select id="selectAllChildren" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        WITH RECURSIVE category_tree AS (
+            SELECT id, category_name, category_code, description, parent_id, sort_order, status, create_time, update_time
+            FROM factor_category
+            WHERE parent_id = #{parentId} AND status = 1
+            
+            UNION ALL
+            
+            SELECT c.id, c.category_name, c.category_code, c.description, c.parent_id, c.sort_order, c.status, c.create_time, c.update_time
+            FROM factor_category c
+            INNER JOIN category_tree ct ON c.parent_id = ct.id
+            WHERE c.status = 1
+        )
+        SELECT * FROM category_tree
+        ORDER BY sort_order ASC, create_time ASC
+    </select>
+
+    <!-- 检查是否有子分类 -->
+    <select id="hasChildren" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM factor_category
+        WHERE parent_id = #{parentId} AND status = 1
+    </select>
+
+    <!-- 检查分类代码是否存在 -->
+    <select id="selectByCategoryCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor_category
+        WHERE category_code = #{categoryCode}
+    </select>
+
+</mapper> 

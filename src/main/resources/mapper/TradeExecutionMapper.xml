@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.PatronageSystem.Patronage.mapper.TradeExecutionMapper">
+    <resultMap id="BaseResultMap" type="com.PatronageSystem.Patronage.entity.TradeExecution">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="execution_code" property="executionCode" jdbcType="VARCHAR"/>
+        <result column="order_id" property="orderId" jdbcType="BIGINT"/>
+        <result column="account_id" property="accountId" jdbcType="BIGINT"/>
+        <result column="fund_id" property="fundId" jdbcType="BIGINT"/>
+        <result column="execution_price" property="executionPrice" jdbcType="DECIMAL"/>
+        <result column="execution_quantity" property="executionQuantity" jdbcType="DECIMAL"/>
+        <result column="execution_amount" property="executionAmount" jdbcType="DECIMAL"/>
+        <result column="commission" property="commission" jdbcType="DECIMAL"/>
+        <result column="net_amount" property="netAmount" jdbcType="DECIMAL"/>
+        <result column="execution_time" property="executionTime" jdbcType="TIMESTAMP"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, execution_code, order_id, account_id, fund_id, execution_price, execution_quantity,
+        execution_amount, commission, net_amount, execution_time, create_time
+    </sql>
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM trade_execution
+        ORDER BY execution_time DESC
+    </select>
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM trade_execution
+        WHERE id = #{id}
+    </select>
+    <select id="selectByExecutionCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM trade_execution
+        WHERE execution_code = #{executionCode}
+    </select>
+    <select id="selectByOrderId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM trade_execution
+        WHERE order_id = #{orderId}
+        ORDER BY execution_time DESC
+    </select>
+    <select id="selectByAccountId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM trade_execution
+        WHERE account_id = #{accountId}
+        ORDER BY execution_time DESC
+    </select>
+    <select id="selectByTimeRange" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM trade_execution
+        WHERE execution_time BETWEEN #{startTime} AND #{endTime}
+        ORDER BY execution_time DESC
+    </select>
+    <insert id="insert" parameterType="com.PatronageSystem.Patronage.entity.TradeExecution" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO trade_execution (
+            execution_code, order_id, account_id, fund_id, execution_price, execution_quantity,
+            execution_amount, commission, net_amount, execution_time
+        ) VALUES (
+            #{executionCode}, #{orderId}, #{accountId}, #{fundId}, #{executionPrice}, #{executionQuantity},
+            #{executionAmount}, #{commission}, #{netAmount}, #{executionTime}
+        )
+    </insert>
+    <update id="update" parameterType="com.PatronageSystem.Patronage.entity.TradeExecution">
+        UPDATE trade_execution
+        SET execution_price = #{executionPrice},
+            execution_quantity = #{executionQuantity},
+            execution_amount = #{executionAmount},
+            commission = #{commission},
+            net_amount = #{netAmount},
+            execution_time = #{executionTime}
+        WHERE id = #{id}
+    </update>
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM trade_execution WHERE id = #{id}
+    </delete>
+</mapper> 

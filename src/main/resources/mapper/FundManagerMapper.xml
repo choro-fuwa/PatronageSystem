@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.PatronageSystem.mapper.FundManagerMapper">
+    
+    <resultMap id="BaseResultMap" type="com.PatronageSystem.entity.FundManager">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="manager_code" property="managerCode" jdbcType="VARCHAR"/>
+        <result column="manager_name" property="managerName" jdbcType="VARCHAR"/>
+        <result column="company_id" property="companyId" jdbcType="BIGINT"/>
+        <result column="education" property="education" jdbcType="VARCHAR"/>
+        <result column="experience_years" property="experienceYears" jdbcType="INTEGER"/>
+        <result column="introduction" property="introduction" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="company_name" property="companyName" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        fm.id, fm.manager_code, fm.manager_name, fm.company_id, fm.education, fm.experience_years,
+        fm.introduction, fm.status, fm.create_time, fm.update_time, fc.company_name
+    </sql>
+    
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM fund_manager fm
+        LEFT JOIN fund_company fc ON fm.company_id = fc.id
+        WHERE fm.status = 1
+        ORDER BY fm.create_time DESC
+    </select>
+    
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM fund_manager fm
+        LEFT JOIN fund_company fc ON fm.company_id = fc.id
+        WHERE fm.id = #{id} AND fm.status = 1
+    </select>
+    
+    <select id="findByCode" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM fund_manager fm
+        LEFT JOIN fund_company fc ON fm.company_id = fc.id
+        WHERE fm.manager_code = #{managerCode} AND fm.status = 1
+    </select>
+    
+    <select id="findByCompanyId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM fund_manager fm
+        LEFT JOIN fund_company fc ON fm.company_id = fc.id
+        WHERE fm.company_id = #{companyId} AND fm.status = 1
+        ORDER BY fm.create_time DESC
+    </select>
+    
+    <select id="search" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM fund_manager fm
+        LEFT JOIN fund_company fc ON fm.company_id = fc.id
+        WHERE fm.status = 1
+        <if test="keyword != null and keyword != ''">
+            AND (fm.manager_code LIKE CONCAT('%', #{keyword}, '%')
+            OR fm.manager_name LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY fm.create_time DESC
+    </select>
+    
+</mapper> 

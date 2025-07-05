@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.PatronageSystem.mapper.StrategyMapper">
+
+    <resultMap id="BaseResultMap" type="com.PatronageSystem.entity.Strategy">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="strategy_code" property="strategyCode" jdbcType="VARCHAR"/>
+        <result column="strategy_name" property="strategyName" jdbcType="VARCHAR"/>
+        <result column="strategy_type" property="strategyType" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="portfolio_id" property="portfolioId" jdbcType="BIGINT"/>
+        <result column="risk_level" property="riskLevel" jdbcType="VARCHAR"/>
+        <result column="target_return" property="targetReturn" jdbcType="DECIMAL"/>
+        <result column="max_drawdown" property="maxDrawdown" jdbcType="DECIMAL"/>
+        <result column="rebalance_frequency" property="rebalanceFrequency" jdbcType="VARCHAR"/>
+        <result column="benchmark" property="benchmark" jdbcType="VARCHAR"/>
+        <result column="creator_id" property="creatorId" jdbcType="BIGINT"/>
+        <result column="is_public" property="isPublic" jdbcType="INTEGER"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <!-- 关联信息 -->
+        <result column="portfolio_name" property="portfolioName" jdbcType="VARCHAR"/>
+        <result column="creator_name" property="creatorName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        s.id, s.strategy_code, s.strategy_name, s.strategy_type, s.description, 
+        s.portfolio_id, s.risk_level, s.target_return, s.max_drawdown, s.rebalance_frequency,
+        s.benchmark, s.creator_id, s.is_public, s.status, s.create_time, s.update_time
+    </sql>
+
+    <sql id="Join_Column_List">
+        s.id, s.strategy_code, s.strategy_name, s.strategy_type, s.description, 
+        s.portfolio_id, s.risk_level, s.target_return, s.max_drawdown, s.rebalance_frequency,
+        s.benchmark, s.creator_id, s.is_public, s.status, s.create_time, s.update_time,
+        fp.portfolio_name, u.real_name as creator_name
+    </sql>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Join_Column_List"/>
+        FROM strategy s
+        LEFT JOIN factor_portfolio fp ON s.portfolio_id = fp.id
+        LEFT JOIN user u ON s.creator_id = u.id
+        WHERE s.status = 1
+        ORDER BY s.create_time DESC
+    </select>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Join_Column_List"/>
+        FROM strategy s
+        LEFT JOIN factor_portfolio fp ON s.portfolio_id = fp.id
+        LEFT JOIN user u ON s.creator_id = u.id
+        WHERE s.id = #{id}
+    </select>
+
+    <select id="selectByStrategyCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Join_Column_List"/>
+        FROM strategy s
+        LEFT JOIN factor_portfolio fp ON s.portfolio_id = fp.id
+        LEFT JOIN user u ON s.creator_id = u.id
+        WHERE s.strategy_code = #{strategyCode}
+    </select>
+
+    <select id="selectByCreatorId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Join_Column_List"/>
+        FROM strategy s
+        LEFT JOIN factor_portfolio fp ON s.portfolio_id = fp.id
+        LEFT JOIN user u ON s.creator_id = u.id
+        WHERE s.creator_id = #{creatorId} AND s.status = 1
+        ORDER BY s.create_time DESC
+    </select>
+
+    <select id="selectByCondition" resultMap="BaseResultMap">
+        SELECT <include refid="Join_Column_List"/>
+        FROM strategy s
+        LEFT JOIN factor_portfolio fp ON s.portfolio_id = fp.id
+        LEFT JOIN user u ON s.creator_id = u.id
+        WHERE s.status = 1
+        <if test="strategyType != null and strategyType != ''">
+            AND s.strategy_type = #{strategyType}
+        </if>
+        <if test="riskLevel != null and riskLevel != ''">
+            AND s.risk_level = #{riskLevel}
+        </if>
+        <if test="isPublic != null">
+            AND s.is_public = #{isPublic}
+        </if>
+        ORDER BY s.create_time DESC
+    </select>
+
+    <select id="selectByKeyword" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Join_Column_List"/>
+        FROM strategy s
+        LEFT JOIN factor_portfolio fp ON s.portfolio_id = fp.id
+        LEFT JOIN user u ON s.creator_id = u.id
+        WHERE s.status = 1
+        AND (
+            s.strategy_code LIKE CONCAT('%', #{keyword}, '%')
+            OR s.strategy_name LIKE CONCAT('%', #{keyword}, '%')
+            OR s.description LIKE CONCAT('%', #{keyword}, '%')
+        )
+        ORDER BY s.create_time DESC
+    </select>
+
+    <insert id="insert" parameterType="com.PatronageSystem.entity.Strategy" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO strategy (
+            strategy_code, strategy_name, strategy_type, description, portfolio_id,
+            risk_level, target_return, max_drawdown, rebalance_frequency, benchmark,
+            creator_id, is_public, status, create_time, update_time
+        ) VALUES (
+            #{strategyCode}, #{strategyName}, #{strategyType}, #{description}, #{portfolioId},
+            #{riskLevel}, #{targetReturn}, #{maxDrawdown}, #{rebalanceFrequency}, #{benchmark},
+            #{creatorId}, #{isPublic}, #{status}, NOW(), NOW()
+        )
+    </insert>
+
+    <update id="update" parameterType="com.PatronageSystem.entity.Strategy">
+        UPDATE strategy
+        SET strategy_name = #{strategyName},
+            strategy_type = #{strategyType},
+            description = #{description},
+            portfolio_id = #{portfolioId},
+            risk_level = #{riskLevel},
+            target_return = #{targetReturn},
+            max_drawdown = #{maxDrawdown},
+            rebalance_frequency = #{rebalanceFrequency},
+            benchmark = #{benchmark},
+            creator_id = #{creatorId},
+            is_public = #{isPublic},
+            status = #{status},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM strategy WHERE id = #{id}
+    </delete>
+
+    <select id="checkStrategyCodeExists" parameterType="java.lang.String" resultType="int">
+        SELECT COUNT(*) FROM strategy WHERE strategy_code = #{strategyCode}
+    </select>
+
+    <!-- 统计查询 -->
+    <select id="selectStrategyStats" resultType="java.util.Map">
+        SELECT 
+            COUNT(*) as total_count,
+            COUNT(CASE WHEN status = 1 THEN 1 END) as active_count,
+            COUNT(CASE WHEN is_public = 1 THEN 1 END) as public_count,
+            COUNT(DISTINCT strategy_type) as strategy_type_count,
+            COUNT(DISTINCT risk_level) as risk_level_count
+        FROM strategy
+    </select>
+
+    <!-- 按策略类型统计 -->
+    <select id="selectStrategyCountByType" resultType="java.util.Map">
+        SELECT 
+            strategy_type as type,
+            COUNT(*) as count
+        FROM strategy
+        WHERE status = 1
+        GROUP BY strategy_type
+        ORDER BY count DESC
+    </select>
+
+    <!-- 按风险等级统计 -->
+    <select id="selectStrategyCountByRiskLevel" resultType="java.util.Map">
+        SELECT 
+            risk_level as level,
+            COUNT(*) as count
+        FROM strategy
+        WHERE status = 1
+        GROUP BY risk_level
+        ORDER BY count DESC
+    </select>
+
+</mapper> 

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.PatronageSystem.mapper.FactorDataMapper">
+
+    <resultMap id="BaseResultMap" type="com.PatronageSystem.entity.FactorData">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="factor_id" property="factorId" jdbcType="BIGINT"/>
+        <result column="fund_code" property="fundCode" jdbcType="VARCHAR"/>
+        <result column="trade_date" property="tradeDate" jdbcType="DATE"/>
+        <result column="factor_value" property="factorValue" jdbcType="DECIMAL"/>
+        <result column="rank_value" property="rankValue" jdbcType="DECIMAL"/>
+        <result column="percentile" property="percentile" jdbcType="DECIMAL"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, factor_id, fund_code, trade_date, factor_value, rank_value, percentile, create_time
+    </sql>
+
+    <select id="selectByFactorId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor_data
+        WHERE factor_id = #{factorId}
+        ORDER BY trade_date DESC, fund_code ASC
+    </select>
+
+    <select id="selectByFactorIdAndDateRange" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor_data
+        WHERE factor_id = #{factorId}
+        <if test="startDate != null">
+            AND trade_date >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND trade_date &lt;= #{endDate}
+        </if>
+        ORDER BY trade_date DESC, fund_code ASC
+    </select>
+
+    <select id="selectByFundCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor_data
+        WHERE fund_code = #{fundCode}
+        ORDER BY trade_date DESC, factor_id ASC
+    </select>
+
+    <select id="selectByTradeDate" parameterType="java.time.LocalDate" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor_data
+        WHERE trade_date = #{tradeDate}
+        ORDER BY factor_id ASC, fund_code ASC
+    </select>
+
+    <select id="selectByFactorIdAndFundCode" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor_data
+        WHERE factor_id = #{factorId} AND fund_code = #{fundCode}
+        ORDER BY trade_date DESC
+    </select>
+
+    <select id="selectLatestByFactorId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT fd1.*
+        FROM factor_data fd1
+        INNER JOIN (
+            SELECT factor_id, fund_code, MAX(trade_date) as max_date
+            FROM factor_data
+            WHERE factor_id = #{factorId}
+            GROUP BY factor_id, fund_code
+        ) fd2 ON fd1.factor_id = fd2.factor_id
+             AND fd1.fund_code = fd2.fund_code
+             AND fd1.trade_date = fd2.max_date
+        ORDER BY fd1.fund_code ASC
+    </select>
+
+    <insert id="insert" parameterType="com.PatronageSystem.entity.FactorData" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO factor_data (
+            factor_id, fund_code, trade_date, factor_value, rank_value, percentile, create_time
+        ) VALUES (
+            #{factorId}, #{fundCode}, #{tradeDate}, #{factorValue}, #{rankValue}, #{percentile}, NOW()
+        )
+    </insert>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO factor_data (
+            factor_id, fund_code, trade_date, factor_value, rank_value, percentile, create_time
+        ) VALUES
+        <foreach collection="dataList" item="item" separator=",">
+            (#{item.factorId}, #{item.fundCode}, #{item.tradeDate}, #{item.factorValue}, #{item.rankValue}, #{item.percentile}, NOW())
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.PatronageSystem.entity.FactorData">
+        UPDATE factor_data
+        SET factor_value = #{factorValue},
+            rank_value = #{rankValue},
+            percentile = #{percentile}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM factor_data WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByFactorId" parameterType="java.lang.Long">
+        DELETE FROM factor_data WHERE factor_id = #{factorId}
+    </delete>
+
+    <select id="selectFactorDataStats" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+            COUNT(*) as total_count,
+            COUNT(DISTINCT fund_code) as fund_count,
+            MAX(trade_date) as latest_date,
+            AVG(factor_value) as avg_value,
+            MIN(factor_value) as min_value,
+            MAX(factor_value) as max_value,
+            STDDEV(factor_value) as std_value
+        FROM factor_data
+        WHERE factor_id = #{factorId}
+    </select>
+
+</mapper>

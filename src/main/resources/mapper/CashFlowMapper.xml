@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.PatronageSystem.Patronage.mapper.CashFlowMapper">
+
+    <resultMap id="BaseResultMap" type="com.PatronageSystem.Patronage.entity.CashFlow">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="flow_code" property="flowCode" jdbcType="VARCHAR"/>
+        <result column="account_id" property="accountId" jdbcType="BIGINT"/>
+        <result column="flow_type" property="flowType" jdbcType="VARCHAR"/>
+        <result column="amount" property="amount" jdbcType="DECIMAL"/>
+        <result column="balance" property="balance" jdbcType="DECIMAL"/>
+        <result column="related_order_id" property="relatedOrderId" jdbcType="BIGINT"/>
+        <result column="related_execution_id" property="relatedExecutionId" jdbcType="BIGINT"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="flow_time" property="flowTime" jdbcType="TIMESTAMP"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, flow_code, account_id, flow_type, amount, balance, related_order_id, related_execution_id,
+        description, flow_time, create_time
+    </sql>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM cash_flow
+        ORDER BY flow_time DESC
+    </select>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM cash_flow
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByFlowCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM cash_flow
+        WHERE flow_code = #{flowCode}
+    </select>
+
+    <select id="selectByAccountId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM cash_flow
+        WHERE account_id = #{accountId}
+        ORDER BY flow_time DESC
+    </select>
+
+    <select id="selectByFlowType" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM cash_flow
+        WHERE flow_type = #{flowType}
+        ORDER BY flow_time DESC
+    </select>
+
+    <select id="selectByTimeRange" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM cash_flow
+        WHERE flow_time BETWEEN #{startTime} AND #{endTime}
+        ORDER BY flow_time DESC
+    </select>
+
+    <insert id="insert" parameterType="com.PatronageSystem.Patronage.entity.CashFlow" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO cash_flow (
+            flow_code, account_id, flow_type, amount, balance, related_order_id, related_execution_id,
+            description, flow_time
+        ) VALUES (
+            #{flowCode}, #{accountId}, #{flowType}, #{amount}, #{balance}, #{relatedOrderId}, #{relatedExecutionId},
+            #{description}, #{flowTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.PatronageSystem.Patronage.entity.CashFlow">
+        UPDATE cash_flow
+        SET flow_type = #{flowType},
+            amount = #{amount},
+            balance = #{balance},
+            related_order_id = #{relatedOrderId},
+            related_execution_id = #{relatedExecutionId},
+            description = #{description},
+            flow_time = #{flowTime}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM cash_flow WHERE id = #{id}
+    </delete>
+
+</mapper>

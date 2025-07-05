@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.PatronageSystem.mapper.FactorPortfolioDetailMapper">
+
+    <resultMap id="BaseResultMap" type="com.PatronageSystem.entity.FactorPortfolioDetail">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="portfolio_id" property="portfolioId" jdbcType="BIGINT"/>
+        <result column="factor_id" property="factorId" jdbcType="BIGINT"/>
+        <result column="weight" property="weight" jdbcType="DECIMAL"/>
+        <result column="direction" property="direction" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, portfolio_id, factor_id, weight, direction, create_time
+    </sql>
+
+    <select id="selectByPortfolioId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor_portfolio_detail
+        WHERE portfolio_id = #{portfolioId}
+        ORDER BY create_time ASC
+    </select>
+
+    <select id="selectByFactorId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor_portfolio_detail
+        WHERE factor_id = #{factorId}
+        ORDER BY create_time ASC
+    </select>
+
+    <select id="selectByPortfolioIdAndFactorId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor_portfolio_detail
+        WHERE portfolio_id = #{portfolioId} AND factor_id = #{factorId}
+    </select>
+
+    <insert id="insert" parameterType="com.PatronageSystem.entity.FactorPortfolioDetail" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO factor_portfolio_detail (
+            portfolio_id, factor_id, weight, direction, create_time
+        ) VALUES (
+            #{portfolioId}, #{factorId}, #{weight}, #{direction}, NOW()
+        )
+    </insert>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO factor_portfolio_detail (
+            portfolio_id, factor_id, weight, direction, create_time
+        ) VALUES
+        <foreach collection="detailList" item="item" separator=",">
+            (#{item.portfolioId}, #{item.factorId}, #{item.weight}, #{item.direction}, NOW())
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.PatronageSystem.entity.FactorPortfolioDetail">
+        UPDATE factor_portfolio_detail
+        SET weight = #{weight},
+            direction = #{direction}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM factor_portfolio_detail WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByPortfolioId" parameterType="java.lang.Long">
+        DELETE FROM factor_portfolio_detail WHERE portfolio_id = #{portfolioId}
+    </delete>
+
+    <delete id="deleteByPortfolioIdAndFactorId">
+        DELETE FROM factor_portfolio_detail 
+        WHERE portfolio_id = #{portfolioId} AND factor_id = #{factorId}
+    </delete>
+
+</mapper> 

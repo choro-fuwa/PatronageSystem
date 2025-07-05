@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.PatronageSystem.mapper.FundMapper">
+    
+    <resultMap id="BaseResultMap" type="com.PatronageSystem.entity.Fund">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="fund_code" property="fundCode" jdbcType="VARCHAR"/>
+        <result column="fund_name" property="fundName" jdbcType="VARCHAR"/>
+        <result column="fund_short_name" property="fundShortName" jdbcType="VARCHAR"/>
+        <result column="company_id" property="companyId" jdbcType="BIGINT"/>
+        <result column="manager_id" property="managerId" jdbcType="BIGINT"/>
+        <result column="fund_type" property="fundType" jdbcType="VARCHAR"/>
+        <result column="risk_level" property="riskLevel" jdbcType="VARCHAR"/>
+        <result column="establish_date" property="establishDate" jdbcType="DATE"/>
+        <result column="fund_size" property="fundSize" jdbcType="DECIMAL"/>
+        <result column="nav" property="nav" jdbcType="DECIMAL"/>
+        <result column="nav_date" property="navDate" jdbcType="DATE"/>
+        <result column="total_return" property="totalReturn" jdbcType="DECIMAL"/>
+        <result column="annual_return" property="annualReturn" jdbcType="DECIMAL"/>
+        <result column="max_drawdown" property="maxDrawdown" jdbcType="DECIMAL"/>
+        <result column="sharpe_ratio" property="sharpeRatio" jdbcType="DECIMAL"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="company_name" property="companyName" jdbcType="VARCHAR"/>
+        <result column="manager_name" property="managerName" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        f.id, f.fund_code, f.fund_name, f.fund_short_name, f.company_id, f.manager_id,
+        f.fund_type, f.risk_level, f.establish_date, f.fund_size, f.nav, f.nav_date,
+        f.total_return, f.annual_return, f.max_drawdown, f.sharpe_ratio, f.status,
+        f.create_time, f.update_time,
+        fc.company_name, fm.manager_name
+    </sql>
+    
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM fund f
+        LEFT JOIN fund_company fc ON f.company_id = fc.id
+        LEFT JOIN fund_manager fm ON f.manager_id = fm.id
+        WHERE f.status = 1
+        ORDER BY f.create_time DESC
+    </select>
+    
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM fund f
+        LEFT JOIN fund_company fc ON f.company_id = fc.id
+        LEFT JOIN fund_manager fm ON f.manager_id = fm.id
+        WHERE f.id = #{id} AND f.status = 1
+    </select>
+    
+    <select id="findByCode" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM fund f
+        LEFT JOIN fund_company fc ON f.company_id = fc.id
+        LEFT JOIN fund_manager fm ON f.manager_id = fm.id
+        WHERE f.fund_code = #{fundCode} AND f.status = 1
+    </select>
+    
+    <select id="findByCompanyId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM fund f
+        LEFT JOIN fund_company fc ON f.company_id = fc.id
+        LEFT JOIN fund_manager fm ON f.manager_id = fm.id
+        WHERE f.company_id = #{companyId} AND f.status = 1
+        ORDER BY f.create_time DESC
+    </select>
+    
+    <select id="findByManagerId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM fund f
+        LEFT JOIN fund_company fc ON f.company_id = fc.id
+        LEFT JOIN fund_manager fm ON f.manager_id = fm.id
+        WHERE f.manager_id = #{managerId} AND f.status = 1
+        ORDER BY f.create_time DESC
+    </select>
+    
+    <select id="search" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM fund f
+        LEFT JOIN fund_company fc ON f.company_id = fc.id
+        LEFT JOIN fund_manager fm ON f.manager_id = fm.id
+        <where>
+            f.status = 1
+            <if test="keyword != null and keyword != ''">
+                AND (f.fund_code LIKE CONCAT('%', #{keyword}, '%')
+                OR f.fund_name LIKE CONCAT('%', #{keyword}, '%')
+                OR f.fund_short_name LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="fundType != null and fundType != ''">
+                AND f.fund_type = #{fundType}
+            </if>
+            <if test="riskLevel != null and riskLevel != ''">
+                AND f.risk_level = #{riskLevel}
+            </if>
+            <if test="tagIds != null and tagIds.size() > 0">
+                AND f.id IN (
+                    SELECT ftr.fund_id 
+                    FROM fund_tag_relation ftr 
+                    WHERE ftr.tag_id IN
+                    <foreach collection="tagIds" item="tagId" open="(" separator="," close=")">
+                        #{tagId}
+                    </foreach>
+                )
+            </if>
+        </where>
+        ORDER BY f.create_time DESC
+    </select>
+    
+    <select id="getFundTags" resultType="string">
+        SELECT ft.tag_name
+        FROM fund_tag ft
+        INNER JOIN fund_tag_relation ftr ON ft.id = ftr.tag_id
+        WHERE ftr.fund_id = #{fundId} AND ft.status = 1
+    </select>
+    
+</mapper> 

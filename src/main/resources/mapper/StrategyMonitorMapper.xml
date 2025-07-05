@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.PatronageSystem.mapper.StrategyMonitorMapper">
+
+    <resultMap id="BaseResultMap" type="com.PatronageSystem.entity.StrategyMonitor">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="strategy_id" property="strategyId" jdbcType="BIGINT"/>
+        <result column="monitor_date" property="monitorDate" jdbcType="DATE"/>
+        <result column="current_return" property="currentReturn" jdbcType="DECIMAL"/>
+        <result column="current_drawdown" property="currentDrawdown" jdbcType="DECIMAL"/>
+        <result column="risk_alert" property="riskAlert" jdbcType="INTEGER"/>
+        <result column="alert_message" property="alertMessage" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, strategy_id, monitor_date, current_return, current_drawdown, risk_alert, alert_message, status, create_time
+    </sql>
+
+    <select id="selectByStrategyId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM strategy_monitor
+        WHERE strategy_id = #{strategyId}
+        ORDER BY monitor_date DESC
+    </select>
+
+    <select id="selectLatestByStrategyId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM strategy_monitor
+        WHERE strategy_id = #{strategyId}
+        ORDER BY monitor_date DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM strategy_monitor
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.PatronageSystem.entity.StrategyMonitor" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO strategy_monitor (
+            strategy_id, monitor_date, current_return, current_drawdown, risk_alert, alert_message, status
+        ) VALUES (
+            #{strategyId}, #{monitorDate}, #{currentReturn}, #{currentDrawdown}, #{riskAlert}, #{alertMessage}, #{status}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.PatronageSystem.entity.StrategyMonitor">
+        UPDATE strategy_monitor
+        SET strategy_id = #{strategyId},
+            monitor_date = #{monitorDate},
+            current_return = #{currentReturn},
+            current_drawdown = #{currentDrawdown},
+            risk_alert = #{riskAlert},
+            alert_message = #{alertMessage},
+            status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM strategy_monitor WHERE id = #{id}
+    </delete>
+
+</mapper> 

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.PatronageSystem.mapper.FactorMapper">
+
+    <resultMap id="BaseResultMap" type="com.PatronageSystem.entity.Factor">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="factor_code" property="factorCode" jdbcType="VARCHAR"/>
+        <result column="factor_name" property="factorName" jdbcType="VARCHAR"/>
+        <result column="factor_short_name" property="factorShortName" jdbcType="VARCHAR"/>
+        <result column="category_id" property="categoryId" jdbcType="BIGINT"/>
+        <result column="factor_type" property="factorType" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="formula" property="formula" jdbcType="VARCHAR"/>
+        <result column="data_source" property="dataSource" jdbcType="VARCHAR"/>
+        <result column="update_frequency" property="updateFrequency" jdbcType="VARCHAR"/>
+        <result column="risk_level" property="riskLevel" jdbcType="VARCHAR"/>
+        <result column="is_public" property="isPublic" jdbcType="INTEGER"/>
+        <result column="creator_id" property="creatorId" jdbcType="BIGINT"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, factor_code, factor_name, factor_short_name, category_id, factor_type, description, 
+        formula, data_source, update_frequency, risk_level, is_public, creator_id, status, create_time, update_time
+    </sql>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor
+        WHERE status = 1
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByCategoryId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor
+        WHERE category_id = #{categoryId} AND status = 1
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByFactorCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor
+        WHERE factor_code = #{factorCode}
+    </select>
+
+    <select id="selectByCondition" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor
+        WHERE status = 1
+        <if test="factorType != null and factorType != ''">
+            AND factor_type = #{factorType}
+        </if>
+        <if test="riskLevel != null and riskLevel != ''">
+            AND risk_level = #{riskLevel}
+        </if>
+        <if test="isPublic != null">
+            AND is_public = #{isPublic}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByCreatorId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor
+        WHERE creator_id = #{creatorId} AND status = 1
+        ORDER BY create_time DESC
+    </select>
+
+    <insert id="insert" parameterType="com.PatronageSystem.entity.Factor" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO factor (
+            factor_code, factor_name, factor_short_name, category_id, factor_type, description,
+            formula, data_source, update_frequency, risk_level, is_public, creator_id, status, create_time, update_time
+        ) VALUES (
+            #{factorCode}, #{factorName}, #{factorShortName}, #{categoryId}, #{factorType}, #{description},
+            #{formula}, #{dataSource}, #{updateFrequency}, #{riskLevel}, #{isPublic}, #{creatorId}, #{status}, NOW(), NOW()
+        )
+    </insert>
+
+    <update id="update" parameterType="com.PatronageSystem.entity.Factor">
+        UPDATE factor
+        SET factor_name = #{factorName},
+            factor_short_name = #{factorShortName},
+            category_id = #{categoryId},
+            factor_type = #{factorType},
+            description = #{description},
+            formula = #{formula},
+            data_source = #{dataSource},
+            update_frequency = #{updateFrequency},
+            risk_level = #{riskLevel},
+            is_public = #{isPublic},
+            status = #{status},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM factor WHERE id = #{id}
+    </delete>
+
+    <!-- 统计查询 -->
+    <select id="selectFactorStats" resultType="java.util.Map">
+        SELECT 
+            COUNT(*) as total_count,
+            COUNT(CASE WHEN status = 1 THEN 1 END) as active_count,
+            COUNT(CASE WHEN is_public = 1 THEN 1 END) as public_count,
+            COUNT(DISTINCT factor_type) as type_count,
+            COUNT(DISTINCT risk_level) as risk_level_count
+        FROM factor
+    </select>
+
+    <!-- 按类型统计 -->
+    <select id="selectFactorCountByType" resultType="java.util.Map">
+        SELECT 
+            factor_type as type,
+            COUNT(*) as count
+        FROM factor
+        WHERE status = 1
+        GROUP BY factor_type
+        ORDER BY count DESC
+    </select>
+
+    <!-- 按风险等级统计 -->
+    <select id="selectFactorCountByRiskLevel" resultType="java.util.Map">
+        SELECT 
+            risk_level as level,
+            COUNT(*) as count
+        FROM factor
+        WHERE status = 1
+        GROUP BY risk_level
+        ORDER BY count DESC
+    </select>
+
+    <!-- 模糊搜索 -->
+    <select id="selectByKeyword" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor
+        WHERE status = 1
+        AND (
+            factor_code LIKE CONCAT('%', #{keyword}, '%')
+            OR factor_name LIKE CONCAT('%', #{keyword}, '%')
+            OR factor_short_name LIKE CONCAT('%', #{keyword}, '%')
+            OR description LIKE CONCAT('%', #{keyword}, '%')
+        )
+        ORDER BY create_time DESC
+    </select>
+
+</mapper> 

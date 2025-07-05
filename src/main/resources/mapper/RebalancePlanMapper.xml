@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.PatronageSystem.Patronage.mapper.RebalancePlanMapper">
+    <resultMap id="RebalancePlanResultMap" type="com.PatronageSystem.Patronage.entity.RebalancePlan">
+        <id property="id" column="id" />
+        <result property="planName" column="plan_name" />
+        <result property="portfolioName" column="portfolio_name" />
+        <result property="portfolioType" column="portfolio_type" />
+        <result property="currentHoldings" column="current_holdings" />
+        <result property="rebalanceInstructions" column="rebalance_instructions" />
+        <result property="status" column="status" />
+        <result property="createTime" column="create_time" />
+        <result property="updateTime" column="update_time" />
+    </resultMap>
+
+    <insert id="insert" parameterType="com.PatronageSystem.Patronage.entity.RebalancePlan">
+        INSERT INTO rebalance_plan (plan_name, portfolio_name, portfolio_type, current_holdings, rebalance_instructions, status, create_time, update_time)
+        VALUES (#{planName}, #{portfolioName}, #{portfolioType}, #{currentHoldings}, #{rebalanceInstructions}, #{status}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="update" parameterType="com.PatronageSystem.Patronage.entity.RebalancePlan">
+        UPDATE rebalance_plan
+        SET plan_name=#{planName}, portfolio_name=#{portfolioName}, portfolio_type=#{portfolioType},
+            current_holdings=#{currentHoldings}, rebalance_instructions=#{rebalanceInstructions},
+            status=#{status}, update_time=#{updateTime}
+        WHERE id=#{id}
+    </update>
+
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM rebalance_plan WHERE id=#{id}
+    </delete>
+
+    <select id="selectById" parameterType="long" resultMap="RebalancePlanResultMap">
+        SELECT * FROM rebalance_plan WHERE id=#{id}
+    </select>
+
+    <select id="selectAll" resultMap="RebalancePlanResultMap">
+        SELECT * FROM rebalance_plan ORDER BY create_time DESC
+    </select>
+</mapper> 

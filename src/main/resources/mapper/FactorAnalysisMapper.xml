@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.PatronageSystem.mapper.FactorAnalysisMapper">
+
+    <resultMap id="BaseResultMap" type="com.PatronageSystem.entity.FactorAnalysis">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="factor_id" property="factorId" jdbcType="BIGINT"/>
+        <result column="analysis_date" property="analysisDate" jdbcType="DATE"/>
+        <result column="ic_value" property="icValue" jdbcType="DECIMAL"/>
+        <result column="rank_ic" property="rankIc" jdbcType="DECIMAL"/>
+        <result column="turnover_rate" property="turnoverRate" jdbcType="DECIMAL"/>
+        <result column="win_rate" property="winRate" jdbcType="DECIMAL"/>
+        <result column="sharpe_ratio" property="sharpeRatio" jdbcType="DECIMAL"/>
+        <result column="max_drawdown" property="maxDrawdown" jdbcType="DECIMAL"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, factor_id, analysis_date, ic_value, rank_ic, turnover_rate, win_rate, sharpe_ratio, max_drawdown, create_time
+    </sql>
+
+    <select id="selectByFactorId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor_analysis
+        WHERE factor_id = #{factorId}
+        ORDER BY analysis_date DESC
+    </select>
+
+    <select id="selectByFactorIdAndDateRange" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor_analysis
+        WHERE factor_id = #{factorId}
+        <if test="startDate != null">
+            AND analysis_date >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND analysis_date &lt;= #{endDate}
+        </if>
+        ORDER BY analysis_date DESC
+    </select>
+
+    <select id="selectByAnalysisDate" parameterType="java.time.LocalDate" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor_analysis
+        WHERE analysis_date = #{analysisDate}
+        ORDER BY factor_id ASC
+    </select>
+
+    <select id="selectLatestByFactorId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM factor_analysis
+        WHERE factor_id = #{factorId}
+        ORDER BY analysis_date DESC
+        LIMIT 1
+    </select>
+
+    <insert id="insert" parameterType="com.PatronageSystem.entity.FactorAnalysis" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO factor_analysis (
+            factor_id, analysis_date, ic_value, rank_ic, turnover_rate, win_rate, sharpe_ratio, max_drawdown, create_time
+        ) VALUES (
+            #{factorId}, #{analysisDate}, #{icValue}, #{rankIc}, #{turnoverRate}, #{winRate}, #{sharpeRatio}, #{maxDrawdown}, NOW()
+        )
+    </insert>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO factor_analysis (
+            factor_id, analysis_date, ic_value, rank_ic, turnover_rate, win_rate, sharpe_ratio, max_drawdown, create_time
+        ) VALUES
+        <foreach collection="analysisList" item="item" separator=",">
+            (#{item.factorId}, #{item.analysisDate}, #{item.icValue}, #{item.rankIc}, #{item.turnoverRate}, #{item.winRate}, #{item.sharpeRatio}, #{item.maxDrawdown}, NOW())
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.PatronageSystem.entity.FactorAnalysis">
+        UPDATE factor_analysis
+        SET ic_value = #{icValue},
+            rank_ic = #{rankIc},
+            turnover_rate = #{turnoverRate},
+            win_rate = #{winRate},
+            sharpe_ratio = #{sharpeRatio},
+            max_drawdown = #{maxDrawdown}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM factor_analysis WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByFactorId" parameterType="java.lang.Long">
+        DELETE FROM factor_analysis WHERE factor_id = #{factorId}
+    </delete>
+
+    <select id="selectFactorAnalysisStats" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+            AVG(ic_value) as avg_ic,
+            AVG(rank_ic) as avg_rank_ic,
+            AVG(turnover_rate) as avg_turnover,
+            AVG(win_rate) as avg_win_rate,
+            AVG(sharpe_ratio) as avg_sharpe,
+            AVG(max_drawdown) as avg_drawdown,
+            MAX(analysis_date) as latest_date,
+            COUNT(*) as total_count
+        FROM factor_analysis
+        WHERE factor_id = #{factorId}
+    </select>
+
+</mapper>

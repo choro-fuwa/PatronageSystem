@@ -1,0 +1,230 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+}
+
+#app {
+  height: 100%;
+}
+
+.app-container {
+  padding: 20px;
+  background-color: #f5f7fa;
+  min-height: calc(100vh - 60px);
+}
+
+.page-header {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 10px;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: #909399;
+}
+
+.card-container {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.search-form {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.fund-card {
+  border: 1px solid #ebeef5;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 15px;
+  transition: all 0.3s;
+  cursor: pointer;
+  
+  &:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+}
+
+.fund-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.fund-code {
+  font-size: 16px;
+  font-weight: 600;
+  color: #409eff;
+}
+
+.fund-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 5px;
+}
+
+.fund-company {
+  font-size: 14px;
+  color: #909399;
+}
+
+.fund-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.stat-item {
+  text-align: center;
+  
+  .stat-label {
+    font-size: 12px;
+    color: #909399;
+    margin-bottom: 5px;
+  }
+  
+  .stat-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: #303133;
+    
+    &.positive {
+      color: #67c23a;
+    }
+    
+    &.negative {
+      color: #f56c6c;
+    }
+  }
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.tag {
+  background: #ecf5ff;
+  color: #409eff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.login-form {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  width: 400px;
+}
+
+.login-title {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 30px;
+}
+
+.sidebar {
+  background: #304156;
+  color: white;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  padding: 20px;
+  text-align: center;
+  border-bottom: 1px solid #435266;
+  
+  h2 {
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+  }
+}
+
+.sidebar-menu {
+  padding: 20px 0;
+}
+
+.menu-item {
+  padding: 12px 20px;
+  color: #bfcbd9;
+  cursor: pointer;
+  transition: all 0.3s;
+  
+  &:hover {
+    background: #263445;
+    color: white;
+  }
+  
+  &.active {
+    background: #409eff;
+    color: white;
+  }
+}
+
+.main-content {
+  background: #f5f7fa;
+  min-height: 100vh;
+}
+
+.header {
+  background: white;
+  padding: 0 20px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pagination-container {
+  margin-top: 20px;
+  text-align: center;
+} 
