@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.patronage.strategy.mapper.StrategyParameterMapper">
+
+    <resultMap id="BaseResultMap" type="com.patronage.strategy.entity.StrategyParameter">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="strategy_id" property="strategyId" jdbcType="BIGINT"/>
+        <result column="param_name" property="paramName" jdbcType="VARCHAR"/>
+        <result column="param_value" property="paramValue" jdbcType="VARCHAR"/>
+        <result column="param_type" property="paramType" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="is_required" property="isRequired" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, strategy_id, param_name, param_value, param_type, description, is_required, create_time, update_time
+    </sql>
+
+    <select id="selectByStrategyId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM strategy_parameter
+        WHERE strategy_id = #{strategyId}
+        ORDER BY param_name
+    </select>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM strategy_parameter
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByStrategyIdAndParamName" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM strategy_parameter
+        WHERE strategy_id = #{strategyId}
+        AND param_name = #{paramName}
+    </select>
+
+    <insert id="insert" parameterType="com.patronage.strategy.entity.StrategyParameter" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO strategy_parameter (
+            strategy_id, param_name, param_value, param_type, description, is_required
+        ) VALUES (
+                     #{strategyId}, #{paramName}, #{paramValue}, #{paramType}, #{description}, #{isRequired}
+                 )
+    </insert>
+
+    <update id="update" parameterType="com.patronage.strategy.entity.StrategyParameter">
+        UPDATE strategy_parameter
+        SET strategy_id = #{strategyId},
+            param_name = #{paramName},
+            param_value = #{paramValue},
+            param_type = #{paramType},
+            description = #{description},
+            is_required = #{isRequired},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM strategy_parameter WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByStrategyId" parameterType="java.lang.Long">
+        DELETE FROM strategy_parameter WHERE strategy_id = #{strategyId}
+    </delete>
+
+</mapper>

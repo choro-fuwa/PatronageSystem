@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.patronage.strategy.mapper.StrategyPositionMapper">
+
+    <resultMap id="BaseResultMap" type="com.patronage.strategy.entity.StrategyPosition">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="strategy_id" property="strategyId" jdbcType="BIGINT"/>
+        <result column="fund_id" property="fundId" jdbcType="BIGINT"/>
+        <result column="position_date" property="positionDate" jdbcType="DATE"/>
+        <result column="weight" property="weight" jdbcType="DECIMAL"/>
+        <result column="shares" property="shares" jdbcType="DECIMAL"/>
+        <result column="market_value" property="marketValue" jdbcType="DECIMAL"/>
+        <result column="cost_basis" property="costBasis" jdbcType="DECIMAL"/>
+        <result column="unrealized_pnl" property="unrealizedPnl" jdbcType="DECIMAL"/>
+        <result column="realized_pnl" property="realizedPnl" jdbcType="DECIMAL"/>
+        <result column="total_pnl" property="totalPnl" jdbcType="DECIMAL"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, strategy_id, fund_id, position_date, weight, shares, market_value, cost_basis,
+        unrealized_pnl, realized_pnl, total_pnl, create_time, update_time
+    </sql>
+
+    <select id="selectByStrategyId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM strategy_position
+        WHERE strategy_id = #{strategyId}
+        ORDER BY position_date DESC, weight DESC
+    </select>
+
+    <select id="selectByStrategyIdAndDate" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM strategy_position
+        WHERE strategy_id = #{strategyId}
+        AND position_date = #{positionDate}
+        ORDER BY weight DESC
+    </select>
+
+    <select id="selectLatestByStrategyId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM strategy_position
+        WHERE strategy_id = #{strategyId}
+        ORDER BY position_date DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM strategy_position
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.patronage.strategy.entity.StrategyPosition" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO strategy_position (
+            strategy_id, fund_id, position_date, weight, shares, market_value, cost_basis,
+            unrealized_pnl, realized_pnl, total_pnl
+        ) VALUES (
+                     #{strategyId}, #{fundId}, #{positionDate}, #{weight}, #{shares}, #{marketValue}, #{costBasis},
+                     #{unrealizedPnl}, #{realizedPnl}, #{totalPnl}
+                 )
+    </insert>
+
+    <update id="update" parameterType="com.patronage.strategy.entity.StrategyPosition">
+        UPDATE strategy_position
+        SET strategy_id = #{strategyId},
+            fund_id = #{fundId},
+            position_date = #{positionDate},
+            weight = #{weight},
+            shares = #{shares},
+            market_value = #{marketValue},
+            cost_basis = #{costBasis},
+            unrealized_pnl = #{unrealizedPnl},
+            realized_pnl = #{realizedPnl},
+            total_pnl = #{totalPnl},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM strategy_position WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByStrategyId" parameterType="java.lang.Long">
+        DELETE FROM strategy_position WHERE strategy_id = #{strategyId}
+    </delete>
+
+</mapper>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.patronage.strategy.mapper.StrategyBacktestMapper">
+
+    <resultMap id="BaseResultMap" type="com.patronage.strategy.entity.StrategyBacktest">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="strategy_id" property="strategyId" jdbcType="BIGINT"/>
+        <result column="backtest_date" property="backtestDate" jdbcType="DATE"/>
+        <result column="start_date" property="startDate" jdbcType="DATE"/>
+        <result column="end_date" property="endDate" jdbcType="DATE"/>
+        <result column="total_return" property="totalReturn" jdbcType="DECIMAL"/>
+        <result column="annual_return" property="annualReturn" jdbcType="DECIMAL"/>
+        <result column="volatility" property="volatility" jdbcType="DECIMAL"/>
+        <result column="sharpe_ratio" property="sharpeRatio" jdbcType="DECIMAL"/>
+        <result column="max_drawdown" property="maxDrawdown" jdbcType="DECIMAL"/>
+        <result column="win_rate" property="winRate" jdbcType="DECIMAL"/>
+        <result column="turnover_rate" property="turnoverRate" jdbcType="DECIMAL"/>
+        <result column="benchmark_return" property="benchmarkReturn" jdbcType="DECIMAL"/>
+        <result column="excess_return" property="excessReturn" jdbcType="DECIMAL"/>
+        <result column="information_ratio" property="informationRatio" jdbcType="DECIMAL"/>
+        <result column="calmar_ratio" property="calmarRatio" jdbcType="DECIMAL"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, strategy_id, backtest_date, start_date, end_date, total_return, annual_return, volatility,
+        sharpe_ratio, max_drawdown, win_rate, turnover_rate, benchmark_return, excess_return,
+        information_ratio, calmar_ratio, create_time
+    </sql>
+
+    <select id="selectByStrategyId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM strategy_backtest
+        WHERE strategy_id = #{strategyId}
+        ORDER BY backtest_date DESC
+    </select>
+
+    <select id="selectLatestByStrategyId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM strategy_backtest
+        WHERE strategy_id = #{strategyId}
+        ORDER BY backtest_date DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM strategy_backtest
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.patronage.strategy.entity.StrategyBacktest" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO strategy_backtest (
+            strategy_id, backtest_date, start_date, end_date, total_return, annual_return, volatility,
+            sharpe_ratio, max_drawdown, win_rate, turnover_rate, benchmark_return, excess_return,
+            information_ratio, calmar_ratio
+        ) VALUES (
+                     #{strategyId}, #{backtestDate}, #{startDate}, #{endDate}, #{totalReturn}, #{annualReturn}, #{volatility},
+                     #{sharpeRatio}, #{maxDrawdown}, #{winRate}, #{turnoverRate}, #{benchmarkReturn}, #{excessReturn},
+                     #{informationRatio}, #{calmarRatio}
+                 )
+    </insert>
+
+    <update id="update" parameterType="com.patronage.strategy.entity.StrategyBacktest">
+        UPDATE strategy_backtest
+        SET strategy_id = #{strategyId},
+            backtest_date = #{backtestDate},
+            start_date = #{startDate},
+            end_date = #{endDate},
+            total_return = #{totalReturn},
+            annual_return = #{annualReturn},
+            volatility = #{volatility},
+            sharpe_ratio = #{sharpeRatio},
+            max_drawdown = #{maxDrawdown},
+            win_rate = #{winRate},
+            turnover_rate = #{turnoverRate},
+            benchmark_return = #{benchmarkReturn},
+            excess_return = #{excessReturn},
+            information_ratio = #{informationRatio},
+            calmar_ratio = #{calmarRatio}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM strategy_backtest WHERE id = #{id}
+    </delete>
+
+    <select id="selectByStrategyIdAndDateRange" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM strategy_backtest
+        WHERE strategy_id = #{strategyId}
+        AND backtest_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY backtest_date DESC
+    </select>
+
+    <select id="selectByBacktestDate" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM strategy_backtest
+        WHERE backtest_date = #{backtestDate}
+        ORDER BY strategy_id
+    </select>
+
+    <delete id="deleteByStrategyId" parameterType="java.lang.Long">
+        DELETE FROM strategy_backtest WHERE strategy_id = #{strategyId}
+    </delete>
+
+    <select id="selectBacktestStats" resultType="java.util.HashMap">
+        SELECT
+            COUNT(*) AS total_count,
+            AVG(total_return) AS avg_total_return,
+            MAX(max_drawdown) AS max_drawdown
+        FROM strategy_backtest
+        WHERE strategy_id = #{strategyId}
+    </select>
+
+    <select id="selectBacktestStatsByStrategy" resultType="java.util.HashMap">
+        SELECT
+            strategy_id,
+            COUNT(*) AS total_count,
+            AVG(total_return) AS avg_total_return,
+            MAX(max_drawdown) AS max_drawdown
+        FROM strategy_backtest
+        GROUP BY strategy_id
+    </select>
+
+</mapper>
