@@ -1,12 +1,12 @@
 package main.java.com.patronage.product.service.impl;
 
-import com.advisorboot.entity.PortfolioProduct;
-import com.advisorboot.entity.ProductDocument;
-import com.advisorboot.entity.ProductPerformance;
-import com.advisorboot.mapper.PortfolioProductMapper;
-import com.advisorboot.mapper.ProductDocumentMapper;
-import com.advisorboot.mapper.ProductPerformanceMapper;
-import com.advisorboot.service.PortfolioProductService;
+import com.patronage.product.entity.PortfolioProduct;
+import com.patronage.product.entity.ProductDocument;
+import com.patronage.product.entity.ProductPerformance;
+import com.patronage.product.mapper.PortfolioProductMapper;
+import com.patronage.product.mapper.ProductDocumentMapper;
+import com.patronage.product.mapper.ProductPerformanceMapper;
+import com.patronage.product.service.PortfolioProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

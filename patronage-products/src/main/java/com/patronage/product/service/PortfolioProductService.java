@@ -1,8 +1,8 @@
 package main.java.com.patronage.product.service;
 
-import com.advisorboot.entity.PortfolioProduct;
-import com.advisorboot.entity.ProductDocument;
-import com.advisorboot.entity.ProductPerformance;
+import com.patronage.product.entity.PortfolioProduct;
+import com.patronage.product.entity.ProductDocument;
+import com.patronage.product.entity.ProductPerformance;
 
 import java.time.LocalDate;
 import java.util.List;

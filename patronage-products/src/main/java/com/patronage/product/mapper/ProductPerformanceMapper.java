@@ -1,6 +1,6 @@
 package main.java.com.patronage.product.mapper;
 
-import com.advisorboot.entity.ProductPerformance;
+import com.patronage.product.entity.ProductPerformance;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

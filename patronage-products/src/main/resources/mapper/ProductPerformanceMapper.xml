@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.advisorboot.mapper.ProductPerformanceMapper">
+<mapper namespace="com.patronage.product.mapper.ProductPerformanceMapper">
 
-    <resultMap id="BaseResultMap" type="com.advisorboot.entity.ProductPerformance">
+    <resultMap id="BaseResultMap" type="com.patronage.product.entity.ProductPerformance">
         <id column="id" property="id" jdbcType="BIGINT"/>
         <result column="product_id" property="productId" jdbcType="BIGINT"/>
         <result column="nav_date" property="navDate" jdbcType="DATE"/>
@@ -70,7 +70,7 @@
         LIMIT 1
     </select>
 
-    <insert id="insert" parameterType="com.advisorboot.entity.ProductPerformance" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.patronage.product.entity.ProductPerformance" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO product_performance (
             product_id, nav_date, nav, accumulated_nav, daily_return, weekly_return, monthly_return,
             quarterly_return, yearly_return, total_return, benchmark_return, excess_return, volatility,
@@ -82,7 +82,7 @@
         )
     </insert>
 
-    <update id="update" parameterType="com.advisorboot.entity.ProductPerformance">
+    <update id="update" parameterType="com.patronage.product.entity.ProductPerformance">
         UPDATE product_performance
         SET nav = #{nav},
             accumulated_nav = #{accumulatedNav},

@@ -1,10 +1,10 @@
 package main.java.com.patronage.product.controller;
 
-import com.advisorboot.entity.PortfolioProduct;
-import com.advisorboot.entity.ProductPerformance;
-import com.advisorboot.entity.ProductDocument;
-import com.advisorboot.service.PortfolioProductService;
-import com.advisorboot.common.Result;
+import com.patronage.product.entity.PortfolioProduct;
+import com.patronage.product.entity.ProductPerformance;
+import com.patronage.product.entity.ProductDocument;
+import com.patronage.product.service.PortfolioProductService;
+import com.patronage.product.common.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.advisorboot.advisor.mapper.PositionMapper">
+<mapper namespace="com.patronage.product.advisor.mapper.PositionMapper">
 
-    <resultMap id="BaseResultMap" type="com.advisorboot.advisor.entity.Position">
+    <resultMap id="BaseResultMap" type="com.patronage.product.advisor.entity.Position">
         <id column="id" property="id" jdbcType="BIGINT"/>
         <result column="account_id" property="accountId" jdbcType="BIGINT"/>
         <result column="fund_id" property="fundId" jdbcType="BIGINT"/>
@@ -48,7 +48,7 @@
         WHERE account_id = #{accountId} AND fund_id = #{fundId}
     </select>
 
-    <insert id="insert" parameterType="com.advisorboot.advisor.entity.Position" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.patronage.product.advisor.entity.Position" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO position (
             account_id, fund_id, total_quantity, available_quantity, frozen_quantity,
             avg_cost, market_price, market_value, unrealized_pnl, realized_pnl, total_pnl
@@ -58,7 +58,7 @@
         )
     </insert>
 
-    <update id="update" parameterType="com.advisorboot.advisor.entity.Position">
+    <update id="update" parameterType="com.patronage.product.advisor.entity.Position">
         UPDATE position
         SET total_quantity = #{totalQuantity},
             available_quantity = #{availableQuantity},
