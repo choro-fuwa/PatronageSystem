@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.patronage.product.mapper.ProductDocumentMapper">
+
+    <resultMap id="BaseResultMap" type="com.patronage.product.entity.ProductDocument">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="product_id" property="productId" jdbcType="BIGINT"/>
+        <result column="document_type" property="documentType" jdbcType="VARCHAR"/>
+        <result column="document_name" property="documentName" jdbcType="VARCHAR"/>
+        <result column="document_url" property="documentUrl" jdbcType="VARCHAR"/>
+        <result column="document_size" property="documentSize" jdbcType="BIGINT"/>
+        <result column="version" property="version" jdbcType="VARCHAR"/>
+        <result column="is_active" property="isActive" jdbcType="INTEGER"/>
+        <result column="upload_time" property="uploadTime" jdbcType="TIMESTAMP"/>
+        <result column="uploader_id" property="uploaderId" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, product_id, document_type, document_name, document_url, document_size, version, is_active, upload_time, uploader_id
+    </sql>
+
+    <select id="selectByProductId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM product_document
+        WHERE product_id = #{productId}
+        ORDER BY upload_time DESC
+    </select>
+
+    <select id="selectByProductIdAndType" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM product_document
+        WHERE product_id = #{productId}
+          AND document_type = #{documentType}
+        ORDER BY upload_time DESC
+    </select>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM product_document
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.patronage.product.entity.ProductDocument" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO product_document (
+            product_id, document_type, document_name, document_url, document_size, version, is_active, uploader_id
+        ) VALUES (
+            #{productId}, #{documentType}, #{documentName}, #{documentUrl}, #{documentSize}, #{version}, #{isActive}, #{uploaderId}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.patronage.product.entity.ProductDocument">
+        UPDATE product_document
+        SET product_id = #{productId},
+            document_type = #{documentType},
+            document_name = #{documentName},
+            document_url = #{documentUrl},
+            document_size = #{documentSize},
+            version = #{version},
+            is_active = #{isActive},
+            uploader_id = #{uploaderId}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM product_document WHERE id = #{id}
+    </delete>
+
+    <update id="updateStatus">
+        UPDATE product_document
+        SET is_active = #{isActive}
+        WHERE id = #{id}
+    </update>
+
+</mapper> 

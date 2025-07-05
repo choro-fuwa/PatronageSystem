@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.patronage.product.mapper.ProductPerformanceMapper">
+
+    <resultMap id="BaseResultMap" type="com.patronage.product.entity.ProductPerformance">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="product_id" property="productId" jdbcType="BIGINT"/>
+        <result column="nav_date" property="navDate" jdbcType="DATE"/>
+        <result column="nav" property="nav" jdbcType="DECIMAL"/>
+        <result column="accumulated_nav" property="accumulatedNav" jdbcType="DECIMAL"/>
+        <result column="daily_return" property="dailyReturn" jdbcType="DECIMAL"/>
+        <result column="weekly_return" property="weeklyReturn" jdbcType="DECIMAL"/>
+        <result column="monthly_return" property="monthlyReturn" jdbcType="DECIMAL"/>
+        <result column="quarterly_return" property="quarterlyReturn" jdbcType="DECIMAL"/>
+        <result column="yearly_return" property="yearlyReturn" jdbcType="DECIMAL"/>
+        <result column="total_return" property="totalReturn" jdbcType="DECIMAL"/>
+        <result column="benchmark_return" property="benchmarkReturn" jdbcType="DECIMAL"/>
+        <result column="excess_return" property="excessReturn" jdbcType="DECIMAL"/>
+        <result column="volatility" property="volatility" jdbcType="DECIMAL"/>
+        <result column="sharpe_ratio" property="sharpeRatio" jdbcType="DECIMAL"/>
+        <result column="max_drawdown" property="maxDrawdown" jdbcType="DECIMAL"/>
+        <result column="calmar_ratio" property="calmarRatio" jdbcType="DECIMAL"/>
+        <result column="information_ratio" property="informationRatio" jdbcType="DECIMAL"/>
+        <result column="tracking_error" property="trackingError" jdbcType="DECIMAL"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, product_id, nav_date, nav, accumulated_nav, daily_return, weekly_return, monthly_return,
+        quarterly_return, yearly_return, total_return, benchmark_return, excess_return, volatility,
+        sharpe_ratio, max_drawdown, calmar_ratio, information_ratio, tracking_error, create_time
+    </sql>
+
+    <select id="selectByProductId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM product_performance
+        WHERE product_id = #{productId}
+        ORDER BY nav_date DESC
+    </select>
+
+    <select id="selectByProductIdAndDateRange" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM product_performance
+        WHERE product_id = #{productId}
+          AND nav_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY nav_date DESC
+    </select>
+
+    <select id="selectLatestByProductId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM product_performance
+        WHERE product_id = #{productId}
+        ORDER BY nav_date DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectMaxNavByProductId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM product_performance
+        WHERE product_id = #{productId}
+        ORDER BY nav DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectMinNavByProductId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM product_performance
+        WHERE product_id = #{productId}
+        ORDER BY nav ASC
+        LIMIT 1
+    </select>
+
+    <insert id="insert" parameterType="com.patronage.product.entity.ProductPerformance" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO product_performance (
+            product_id, nav_date, nav, accumulated_nav, daily_return, weekly_return, monthly_return,
+            quarterly_return, yearly_return, total_return, benchmark_return, excess_return, volatility,
+            sharpe_ratio, max_drawdown, calmar_ratio, information_ratio, tracking_error
+        ) VALUES (
+            #{productId}, #{navDate}, #{nav}, #{accumulatedNav}, #{dailyReturn}, #{weeklyReturn}, #{monthlyReturn},
+            #{quarterlyReturn}, #{yearlyReturn}, #{totalReturn}, #{benchmarkReturn}, #{excessReturn}, #{volatility},
+            #{sharpeRatio}, #{maxDrawdown}, #{calmarRatio}, #{informationRatio}, #{trackingError}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.patronage.product.entity.ProductPerformance">
+        UPDATE product_performance
+        SET nav = #{nav},
+            accumulated_nav = #{accumulatedNav},
+            daily_return = #{dailyReturn},
+            weekly_return = #{weeklyReturn},
+            monthly_return = #{monthlyReturn},
+            quarterly_return = #{quarterlyReturn},
+            yearly_return = #{yearlyReturn},
+            total_return = #{totalReturn},
+            benchmark_return = #{benchmarkReturn},
+            excess_return = #{excessReturn},
+            volatility = #{volatility},
+            sharpe_ratio = #{sharpeRatio},
+            max_drawdown = #{maxDrawdown},
+            calmar_ratio = #{calmarRatio},
+            information_ratio = #{informationRatio},
+            tracking_error = #{trackingError}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM product_performance WHERE id = #{id}
+    </delete>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO product_performance (
+            product_id, nav_date, nav, accumulated_nav, daily_return, weekly_return, monthly_return,
+            quarterly_return, yearly_return, total_return, benchmark_return, excess_return, volatility,
+            sharpe_ratio, max_drawdown, calmar_ratio, information_ratio, tracking_error
+        ) VALUES
+        <foreach collection="performances" item="item" separator=",">
+            (#{item.productId}, #{item.navDate}, #{item.nav}, #{item.accumulatedNav}, #{item.dailyReturn}, #{item.weeklyReturn}, #{item.monthlyReturn},
+             #{item.quarterlyReturn}, #{item.yearlyReturn}, #{item.totalReturn}, #{item.benchmarkReturn}, #{item.excessReturn}, #{item.volatility},
+             #{item.sharpeRatio}, #{item.maxDrawdown}, #{item.calmarRatio}, #{item.informationRatio}, #{item.trackingError})
+        </foreach>
+    </insert>
+
+</mapper> 
