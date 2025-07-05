@@ -1,0 +1,503 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="keywords" content="来访统计"/>
+    <meta name="description" content="来访统计,百度地图"/>
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0,viewport-fit=cover">
+    <title>来访统计-百度地图</title>
+    <link href="/ip/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <link href="/ip/sb-admin.min.css" rel="stylesheet">
+    <script type="text/javascript"
+            src="https://api.map.baidu.com/api?v=2.0&ak=TGK87FErOgddS62SKTEUt9BMwSM5XUoW"></script>
+    <!--引用百度地图API-->
+    <style type="text/css">
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            margin-top: 10px;
+        }
+
+        #dataTable {
+            text-align: center;
+        }
+
+        #online {
+            margin: 0 10px;
+        }
+
+        .iw_poi_title {
+            color: #CC5522;
+            font-size: 14px;
+            font-weight: bold;
+            overflow: hidden;
+            padding-right: 13px;
+            white-space: nowrap
+        }
+
+        .iw_poi_content {
+            font: 12px arial, sans-serif;
+            overflow: visible;
+            padding-top: 4px;
+            white-space: -moz-pre-wrap;
+            word-wrap: break-word
+        }
+    </style>
+</head>
+
+<body id="page-top">
+<nav class="navbar navbar-expand navbar-dark bg-dark static-top">
+    <div class="container">
+        <p class="navbar-brand mr-1">来访统计</p>
+        <p class="navbar-text text-center" id="tqxx"></p>
+        <p class="navbar-text navbar-right" id="ip_position"></p>
+        <p class="navbar-text navbar-right" id="ip_tj"></p>
+        <p class="navbar-text navbar-right" id="ip_tj">当前在线<span id="online"></span>人</p>
+    </div>
+</nav>
+<div id="wrapper">
+    <div id="content-wrapper">
+        <div class="container-fluid">
+            <!--百度地图容器-->
+            <div class="center-block">
+                <div style="width:100%;height:550px;border:#ccc solid 1px;" id="dituContent"></div>
+            </div>
+            <!-- DataTables Example -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fas"></i> 百度定位系统
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                            <tr>
+                                <th>IP</th>
+                                <th>地区</th>
+                                <th>浏览器</th>
+                                <th>时间</th>
+                                <th>坐标(x,y)</th>
+                                <th>点击数</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody id="ip_ips">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="copyright text-center my-auto">
+            <span></span>
+        </div>
+    </div>
+</div>
+<!-- Scroll to Top Button-->
+<a class="rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+<!-- Bootstrap core JavaScript-->
+<script src="/ip/jquery.min.js"></script>
+<script src="/ip/bootstrap.bundle.min.js"></script>
+<!-- Page level plugin JavaScript-->
+<script src="/ip/jquery.dataTables.min.js"></script>
+<script src="/ip/dataTables.bootstrap4.js"></script>
+<script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>
+<!-- Custom scripts for all pages-->
+<script src="/ip/sb-admin.min.js"></script>
+<script>
+    //ua判断
+    if (/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent) == true) {
+        $("#dituContent").css("height", "300px");
+    }
+    //加载天气
+    // $.get("https://www.tianqiapi.com/api/?version=v1&appid=36489695&appsecret=J29eQhYD", function (data) {
+    //     $("#tqxx").text(data.country + " " + data.city + " " + data.data[0].date + " " + data.data[0].week + " 天气" + data.data[0].wea + " 最高" + data.data[0].tem1 + " 最低" + data.data[0].tem2 + " 当前" + data.data[0].tem);
+    // });
+    $.getJSON("/api/limit", function (response) {
+        // console.log("response:" + response.data);
+        if (response.code === 200) {
+            var html = null;
+            for (var i = 0; i < response.data.length; i++) {
+                var ipxx = response.data;
+                var axis = ipxx[i].axis;
+                if (axis === "") {
+                    continue;
+                }
+                var xy = (axis || "").split(",");
+                var x = parseFloat(xy[0]);
+                var y = parseFloat(xy[1]);
+                var status = (ipxx[i].status === 1) ? '在线' : '下线';
+                /*console.log("x:" + x);
+                console.log("y:" + y);*/
+                html = html + '<tr><td id="ip">' + ipxx[i].ip + '</td><td id="position">' +
+                    ipxx[i].address + '</td><td>' + ipxx[i].ua + '</td><td id="time">' + ipxx[i].time + '</td><td><p>' + x +
+                    ',' + y +
+                    // '</p></td><td><button type="button" class="btn btn-info">定位</button></td></tr>';
+                    '</p></td><td id="count">' + ipxx[i].count + '</td><td id="status">' + status + '</td><td><button type="button" class="btn btn-info">定位</button></td></tr>';
+
+            }
+            $("#ip_ips").html(html);
+            initDataTable();
+        } else {
+            alert("数据获取失败！");
+        }
+    });
+    $.getJSON("/api/today", function (response) {
+        if (response.code === 200) {
+            var num = 0;
+            for (var i = 0; i < response.data.length; i++) {
+                if (response.data[i].status === 1) {
+                    num = num + 1;
+                }
+            }
+            $("#online").html(num);
+        }
+    });
+
+    function initDataTable() {
+        $('#dataTable').DataTable({
+            "aoColumnDefs": [{
+                "bSortable": false,
+                "aTargets": [2, 7]
+            }], //指定那几列不可以排序
+            "aaSorting": [
+                [3, "desc"]
+            ], //默认按那几列排序
+            "columnDefs": [{
+                "targets": [0],
+                "searchable": false
+            }], //设置第一列不参与搜索
+            "oLanguage": {
+                "sProcessing": "努力加载数据中.",
+                "sLengthMenu": "每页显示 _MENU_ 条记录",
+                "sZeroRecords": "抱歉， 没有找到",
+                "sInfo": "从 _START_ 到 _END_ /共 _TOTAL_ 条数据",
+                "sInfoEmpty": "没有数据",
+                "sInfoFiltered": "(从 _MAX_ 条数据中检索)",
+                "sZeroRecords": "没有检索到数据",
+                "sSearch": "模糊查询:  ",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "前一页",
+                    "sNext": "后一页",
+                    "sLast": "尾页"
+                }
+            }
+        });
+    }
+
+    var x, y, markerArr = null;
+    $.ajax({
+        type: "get",
+        url: "https://api.map.baidu.com/location/ip?ak=TGK87FErOgddS62SKTEUt9BMwSM5XUoW&coor=bd09ll",
+        dataType: "jsonp",
+        success: function (data) {
+            console.log(data);
+            var result = JSON.stringify(data); //json对象转成字符串
+            $("#ip_position").text("来自:" + data.content.address);
+            //$("#ip_tj").text("到访本站用户共:" + data.statistics + "人");
+            x = data.content.point.x;
+            y = data.content.point.y;
+            //标注点数组
+            markerArr = [{
+                title: returnCitySN["cip"],
+                // content: data.content.address + "<br />" + data.time,
+                content: data.content.address + "<br />" + dateFormat("YYYY-mm-dd HH:MM:SS", new Date()),
+                x: x,
+                y: y,
+                isOpen: 1,
+                icon: {
+                    w: 29,
+                    h: 29,
+                    l: 0,
+                    t: 0,
+                    x: 0,
+                    lb: 5
+                }
+            }];
+            initMap(); //创建和初始化地图
+        }
+    });
+
+    function initMap() {
+        createMap(x, y); //创建地图
+        setMapEvent(); //设置地图事件
+        addMapControl(); //向地图添加控件
+        addMarker(); //向地图中添加marker
+    }
+
+    //创建地图函数：
+    function createMap(x, y) {
+        var map = new BMap.Map("dituContent"); //在百度地图容器中创建一个地图
+        map.addControl(new BMap.MapTypeControl()); //地图类型控件 默认右上角可切换地图/卫星/三维三种状态
+        var point = new BMap.Point(x, y); //定义一个中心点坐标
+        map.centerAndZoom(point, 15); //设定地图的中心点和坐标并将地图显示在地图容器中
+        //var marker = new BMap.Marker(point);//创建标注
+        //map.addOverlay(marker);//方法addOverlay() 向地图中添加覆盖物
+        window.map = map; //将map变量存储在全局
+    }
+
+    //地图事件设置函数：
+    function setMapEvent() {
+        map.enableDragging(); //启用地图拖拽事件，默认启用(可不写)
+        map.enableScrollWheelZoom(); //启用地图滚轮放大缩小
+        map.enableDoubleClickZoom(); //启用鼠标双击放大，默认启用(可不写)
+        map.enableKeyboard(); //启用键盘上下左右键移动地图
+    }
+
+    //地图控件添加函数：
+    function addMapControl() {
+        //向地图中添加缩放控件
+        var ctrl_nav = new BMap.NavigationControl({
+            anchor: BMAP_ANCHOR_TOP_LEFT,
+            type: BMAP_NAVIGATION_CONTROL_LARGE
+        });
+        map.addControl(ctrl_nav);
+        //向地图中添加比例尺控件
+        var ctrl_sca = new BMap.ScaleControl({
+            anchor: BMAP_ANCHOR_BOTTOM_LEFT
+        });
+        map.addControl(ctrl_sca);
+    }
+
+    //创建marker
+    function addMarker() {
+        for (var i = 0; i < markerArr.length; i++) {
+            var json = markerArr[i];
+            //             var p0 = json.point.split("|")[0];
+            //             var p1 = json.point.split("|")[1];
+            var point = new BMap.Point(json.x, json.y);
+            var iconImg = createIcon(json.icon);
+            var marker = new BMap.Marker(point, {
+                icon: iconImg
+            });
+            var iw = createInfoWindow(i);
+            var label = new BMap.Label(json.title, {
+                "offset": new BMap.Size(json.icon.lb - json.icon.x + 10, -20)
+            });
+            marker.setLabel(label);
+            map.addOverlay(marker);
+            label.setStyle({
+                borderColor: "#808080",
+                color: "#333",
+                cursor: "pointer"
+            });
+
+            (function () {
+                var index = i;
+                var _iw = createInfoWindow(i);
+                var _marker = marker;
+                _marker.addEventListener("click", function () {
+                    this.openInfoWindow(_iw);
+                });
+                _iw.addEventListener("open", function () {
+                    _marker.getLabel().hide();
+                })
+                _iw.addEventListener("close", function () {
+                    _marker.getLabel().show();
+                })
+                label.addEventListener("click", function () {
+                    _marker.openInfoWindow(_iw);
+                })
+                if (!!json.isOpen) {
+                    label.hide();
+                    _marker.openInfoWindow(_iw);
+                }
+            })()
+        }
+    }
+
+    //创建InfoWindow
+    function createInfoWindow(i) {
+        var json = markerArr[i];
+        var iw = new BMap.InfoWindow("<b class='iw_poi_title' title='" + json.title + "'>" + json.title +
+            "</b><div class='iw_poi_content'>" + json.content + "</div>");
+        return iw;
+    }
+
+    //创建一个Icon
+    function createIcon(json) {
+        var icon = new BMap.Icon("https://blog.lxbkw.com/content/templates/emlog_dux/images/face/1.png", new BMap.Size(json.w, json.h), {
+            imageOffset: new BMap.Size(-json.l, -json.t),
+            infoWindowOffset: new BMap.Size(json.lb + 5, 1),
+            offset: new BMap.Size(json.x, json.h)
+        })
+        return icon;
+    }
+
+    //创建和初始化地图函数：
+    function initMap() {
+        createMap(x, y); //创建地图
+        setMapEvent(); //设置地图事件
+        addMapControl(); //向地图添加控件
+        addMarker(); //向地图中添加marker
+    }
+
+    //创建地图函数：
+    function createMap(x, y) {
+        var map = new BMap.Map("dituContent"); //在百度地图容器中创建一个地图
+        map.addControl(new BMap.MapTypeControl()); //地图类型控件 默认右上角可切换地图/卫星/三维三种状态
+        var point = new BMap.Point(x, y); //定义一个中心点坐标
+        map.centerAndZoom(point, 15); //设定地图的中心点和坐标并将地图显示在地图容器中
+        //var marker = new BMap.Marker(point);//创建标注
+        //map.addOverlay(marker);//方法addOverlay() 向地图中添加覆盖物
+        window.map = map; //将map变量存储在全局
+    }
+
+    //地图事件设置函数：
+    function setMapEvent() {
+        map.enableDragging(); //启用地图拖拽事件，默认启用(可不写)
+        map.enableScrollWheelZoom(); //启用地图滚轮放大缩小
+        map.enableDoubleClickZoom(); //启用鼠标双击放大，默认启用(可不写)
+        map.enableKeyboard(); //启用键盘上下左右键移动地图
+    }
+
+    //地图控件添加函数：
+    function addMapControl() {
+        //向地图中添加缩放控件
+        var ctrl_nav = new BMap.NavigationControl({
+            anchor: BMAP_ANCHOR_TOP_LEFT,
+            type: BMAP_NAVIGATION_CONTROL_LARGE
+        });
+        map.addControl(ctrl_nav);
+        //向地图中添加比例尺控件
+        var ctrl_sca = new BMap.ScaleControl({
+            anchor: BMAP_ANCHOR_BOTTOM_LEFT
+        });
+        map.addControl(ctrl_sca);
+    }
+
+    //创建marker
+    function addMarker() {
+        for (var i = 0; i < markerArr.length; i++) {
+            var json = markerArr[i];
+            //             var p0 = json.point.split("|")[0];
+            //             var p1 = json.point.split("|")[1];
+            var point = new BMap.Point(json.x, json.y);
+            var iconImg = createIcon(json.icon);
+            var marker = new BMap.Marker(point, {
+                icon: iconImg
+            });
+            var iw = createInfoWindow(i);
+            var label = new BMap.Label(json.title, {
+                "offset": new BMap.Size(json.icon.lb - json.icon.x + 10, -20)
+            });
+            marker.setLabel(label);
+            map.addOverlay(marker);
+            label.setStyle({
+                borderColor: "#808080",
+                color: "#333",
+                cursor: "pointer"
+            });
+
+            (function () {
+                var index = i;
+                var _iw = createInfoWindow(i);
+                var _marker = marker;
+                _marker.addEventListener("click", function () {
+                    this.openInfoWindow(_iw);
+                });
+                _iw.addEventListener("open", function () {
+                    _marker.getLabel().hide();
+                });
+                _iw.addEventListener("close", function () {
+                    _marker.getLabel().show();
+                });
+                label.addEventListener("click", function () {
+                    _marker.openInfoWindow(_iw);
+                });
+                if (!!json.isOpen) {
+                    label.hide();
+                    _marker.openInfoWindow(_iw);
+                }
+            })()
+        }
+    }
+
+    //创建InfoWindow
+    function createInfoWindow(i) {
+        var json = markerArr[i];
+        var iw = new BMap.InfoWindow("<b class='iw_poi_title' title='" + json.title + "'>" + json.title +
+            "</b><div class='iw_poi_content'>" + json.content + "</div>");
+        return iw;
+    }
+
+    //创建一个Icon
+    function createIcon(json) {
+        var icon = new BMap.Icon("https://webapi.amap.com/theme/v1.3/markers/n/mark_r.png", new BMap.Size(json.w, json.h), {
+            imageOffset: new BMap.Size(-json.l, -json.t),
+            infoWindowOffset: new BMap.Size(json.lb + 5, 1),
+            offset: new BMap.Size(json.x, json.h)
+        })
+        return icon;
+    }
+
+
+    function dateFormat(fmt, date) {
+        let ret;
+        const opt = {
+            "Y+": date.getFullYear().toString(),        // 年
+            "m+": (date.getMonth() + 1).toString(),     // 月
+            "d+": date.getDate().toString(),            // 日
+            "H+": date.getHours().toString(),           // 时
+            "M+": date.getMinutes().toString(),         // 分
+            "S+": date.getSeconds().toString()          // 秒
+            // 有其他格式化字符需求可以继续添加，必须转化成字符串
+        };
+        for (let k in opt) {
+            ret = new RegExp("(" + k + ")").exec(fmt);
+            if (ret) {
+                fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
+            }
+        }
+        return fmt;
+    }
+
+    $('#ip_ips').on('click', 'button', function () {
+        var td = $(this).parents("tr");
+        var xy = td.find("p").text();
+        var ip = td.find("#ip").text();
+        var time = td.find("#time").text();
+        var position = td.find("#position").text();
+        var count = td.find("#count").text();
+        var status = td.find("#status").text();
+        x = xy.split(",")[0];
+        y = xy.split(",")[1];
+        createMap(x, y); //创建地图
+        //标注点数组
+        markerArr = [{
+            title: ip,
+            content: position + "<br />" + time,
+            x: x,
+            y: y,
+            count: count,
+            status: status,
+            isOpen: 1,
+            icon: {
+                w: 29,
+                h: 29,
+                l: 0,
+                t: 0,
+                x: 0,
+                lb: 5
+            }
+        }];
+        initMap(); //创建和初始化地图
+    });
+
+
+</script>
+</body>
+
+</html>
