@@ -19,6 +19,7 @@ import ErrorHandlingList from '../views/trade/ErrorHandlingList.vue'
 import AccountRebalance from '../views/trade/AccountRebalance.vue'
 import ExecutionList from '../views/trade/ExceutionList.vue'
 import Console from '../views/Console.vue'
+import BacktestView from '../views/backtest/BacktestView.vue'
 
 const routes = [
   {
@@ -36,6 +37,12 @@ const routes = [
         name: 'Console',
         component: Console,
         meta: { title: '系统控制台', icon: 'monitor' }
+      },
+      {
+        path: '/backtest',
+        name: 'Backtest',
+        component: BacktestView,
+        meta: { title: '基金回测', icon: 'trend-charts' }
       },
       {
         path: '/fund',
@@ -203,4 +210,4 @@ router.beforeEach((to, from, next) => {
   }
 })
 
-export default router 
+export default router

@@ -140,6 +140,11 @@ const menus = [
     icon: TrendCharts
   },
   {
+    path: '/backtest',
+    title: '基金回测',
+    icon: TrendCharts
+  },
+  {
     path: '/portfolio-product',
     title: '组合产品管理',
     icon: Box
